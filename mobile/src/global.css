@@ -13,4 +13,95 @@
     'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic',
     sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
+
+  /* Surfaces */
+  --background: #f8fafc;
+  --surface: #ffffff;
+  --surface-subtle: #f1f5f9;
+  --surface-elevated: #ffffff;
+
+  /* Content */
+  --foreground: #0f172a;
+  --muted-foreground: #64748b;
+  --subtle-foreground: #94a3b8;
+  --inverse-foreground: #ffffff;
+
+  /* Brand */
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-subtle: #eff6ff;
+  --primary-foreground: #ffffff;
+
+  /* Borders */
+  --border: #e2e8f0;
+  --border-subtle: #f1f5f9;
+  --input: #e2e8f0;
+  --ring: #3b82f6;
+
+  /* Status */
+  --success: #10b981;
+  --success-subtle: #ecfdf5;
+  --success-foreground: #064e3b;
+
+  --warning: #f59e0b;
+  --warning-subtle: #fffbeb;
+  --warning-foreground: #78350f;
+
+  --destructive: #ef4444;
+  --destructive-subtle: #fef2f2;
+  --destructive-foreground: #7f1d1d;
+
+  /* Domain */
+  --income: #10b981;
+  --income-subtle: #ecfdf5;
+
+  --outcome: #ef4444;
+  --outcome-subtle: #fef2f2;
+
+  /* Radius */
+  --radius-field: 12px;
+  --radius-box: 16px;
+  --radius-selector: 9999px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #020617;
+    --surface: #0f172a;
+    --surface-subtle: #1e293b;
+    --surface-elevated: #1e293b;
+
+    --foreground: #f8fafc;
+    --muted-foreground: #94a3b8;
+    --subtle-foreground: #64748b;
+    --inverse-foreground: #0f172a;
+
+    --primary: #60a5fa;
+    --primary-hover: #3b82f6;
+    --primary-subtle: #1e3a8a;
+    --primary-foreground: #0f172a;
+
+    --border: #334155;
+    --border-subtle: #1e293b;
+    --input: #334155;
+    --ring: #60a5fa;
+
+    --success: #34d399;
+    --success-subtle: #064e3b;
+    --success-foreground: #d1fae5;
+
+    --warning: #fbbf24;
+    --warning-subtle: #78350f;
+    --warning-foreground: #fef3c7;
+
+    --destructive: #f87171;
+    --destructive-subtle: #7f1d1d;
+    --destructive-foreground: #fee2e2;
+
+    --income: #34d399;
+    --income-subtle: #064e3b;
+
+    --outcome: #f87171;
+    --outcome-subtle: #7f1d1d;
+  }
 }
