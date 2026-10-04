@@ -1,34 +1,15 @@
-
-import { StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { ThemedView } from '@/components/themed-view';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { View } from 'react-native';
+import { Screen } from '@/components/ui/screen';
 import { ThemePreviewCard } from '@/components/ui/theme-previev-card';
 
 export default function HomeScreen() {
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemePreviewCard />
-      </SafeAreaView>
-    </ThemedView>
+    <Screen>
+      <View className="flex-1 items-center gap-3 px-4">
+        <View className="w-full max-w-screen-md">
+          <ThemePreviewCard />
+        </View>
+      </View>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-
-});

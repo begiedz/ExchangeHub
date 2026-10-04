@@ -1,17 +1,29 @@
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
-import { useColorScheme } from 'react-native';
-
-import { Colors } from '@/constants/theme';
+import { useUnstableNativeVariable } from 'nativewind';
 
 export default function AppTabs() {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
+  const surface = useUnstableNativeVariable('--surface');
+  const foreground = useUnstableNativeVariable('--foreground');
+  const mutedForeground = useUnstableNativeVariable('--muted-foreground');
+  const primary = useUnstableNativeVariable('--primary');
 
   return (
     <NativeTabs
-      backgroundColor={colors.background}
-      indicatorColor={colors.backgroundElement}
-      labelStyle={{ selected: { color: colors.text } }}>
+      backgroundColor={surface}
+      indicatorColor={primary}
+      iconColor={{
+        default: mutedForeground,
+        selected: primary,
+      }}
+      labelStyle={{
+        default: {
+          color: mutedForeground,
+        },
+        selected: {
+          color: foreground,
+        },
+      }}
+    >
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
@@ -27,6 +39,7 @@ export default function AppTabs() {
           renderingMode="template"
         />
       </NativeTabs.Trigger>
+
       <NativeTabs.Trigger name="history">
         <NativeTabs.Trigger.Label>History</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
@@ -34,6 +47,7 @@ export default function AppTabs() {
           renderingMode="template"
         />
       </NativeTabs.Trigger>
+
       <NativeTabs.Trigger name="rates">
         <NativeTabs.Trigger.Label>Rates</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
@@ -41,6 +55,7 @@ export default function AppTabs() {
           renderingMode="template"
         />
       </NativeTabs.Trigger>
+
       <NativeTabs.Trigger name="archive">
         <NativeTabs.Trigger.Label>Archive</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon

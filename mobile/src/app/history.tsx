@@ -1,9 +1,12 @@
-import { Text, ScrollView } from 'react-native';
+import { View, Text } from 'react-native';
+import { Screen } from '@/components/ui/screen';
 
-export default function History() {
+export default function HistoryScreen() {
   return (
-    <ScrollView>
-      <Text>History</Text>
-    </ScrollView>
+    <Screen>
+      <View className="flex-1 items-center gap-3 px-4">
+        <Text>History</Text>
+      </View>
+    </Screen>
   );
 }
