@@ -12,7 +12,7 @@ export default function LoginScreen() {
         <Text className="text-2xl font-semibold text-foreground">Login</Text>
 
         <Pressable
-          className="rounded-field bg-primary px-4 py-3"
+          className="rounded-lg bg-primary px-4 py-3"
           onPress={signIn}
         >
           <Text className="text-center font-semibold text-primary-foreground">
