@@ -1,77 +1,107 @@
+const { hairlineWidth } = require('nativewind/theme');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  darkMode: 'class',
+
+  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
+
   presets: [require('nativewind/preset')],
 
   theme: {
     extend: {
       colors: {
-        background: 'var(--background)',
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
 
-        surface: {
-          DEFAULT: 'var(--surface)',
-          subtle: 'var(--surface-subtle)',
-          elevated: 'var(--surface-elevated)',
-        },
-
-        foreground: {
-          DEFAULT: 'var(--foreground)',
-          muted: 'var(--muted-foreground)',
-          subtle: 'var(--subtle-foreground)',
-          inverse: 'var(--inverse-foreground)',
-        },
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
 
         primary: {
-          DEFAULT: 'var(--primary)',
-          hover: 'var(--primary-hover)',
-          subtle: 'var(--primary-subtle)',
-          foreground: 'var(--primary-foreground)',
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
         },
 
-        success: {
-          DEFAULT: 'var(--success)',
-          subtle: 'var(--success-subtle)',
-          foreground: 'var(--success-foreground)',
-        },
-
-        warning: {
-          DEFAULT: 'var(--warning)',
-          subtle: 'var(--warning-subtle)',
-          foreground: 'var(--warning-foreground)',
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
         },
 
         destructive: {
-          DEFAULT: 'var(--destructive)',
-          subtle: 'var(--destructive-subtle)',
-          foreground: 'var(--destructive-foreground)',
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))',
         },
 
-        income: {
-          DEFAULT: 'var(--income)',
-          subtle: 'var(--income-subtle)',
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
         },
 
-        outcome: {
-          DEFAULT: 'var(--outcome)',
-          subtle: 'var(--outcome-subtle)',
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
         },
 
-        border: {
-          DEFAULT: 'var(--border)',
-          subtle: 'var(--border-subtle)',
+        popover: {
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))',
         },
 
-        input: 'var(--input)',
-        ring: 'var(--ring)',
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
+        },
+
+        chart: {
+          1: 'hsl(var(--chart-1))',
+          2: 'hsl(var(--chart-2))',
+          3: 'hsl(var(--chart-3))',
+          4: 'hsl(var(--chart-4))',
+          5: 'hsl(var(--chart-5))',
+        },
       },
 
       borderRadius: {
-        field: 'var(--radius-field)',
-        box: 'var(--radius-box)',
-        selector: 'var(--radius-selector)',
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
+      },
+
+      borderWidth: {
+        hairline: hairlineWidth(),
+      },
+
+      keyframes: {
+        'accordion-down': {
+          from: {
+            height: '0',
+          },
+          to: {
+            height: 'var(--radix-accordion-content-height)',
+          },
+        },
+
+        'accordion-up': {
+          from: {
+            height: 'var(--radix-accordion-content-height)',
+          },
+          to: {
+            height: '0',
+          },
+        },
+      },
+
+      animation: {
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
       },
     },
   },
 
-  plugins: [],
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
+
+  plugins: [require('tailwindcss-animate')],
 };
