@@ -1,7 +1,7 @@
 import { ScrollView, View } from 'react-native';
 
 import { Screen } from '@/components/ui/screen';
-import { ThemePreviewCard } from '@/components/ui/theme-previev-card';
+import { DesignSystem } from '@/components/ui/design-system';
 
 export default function HomeScreen() {
   return (
@@ -11,7 +11,7 @@ export default function HomeScreen() {
         contentContainerClassName="grow items-center gap-3 px-4 py-4"
       >
         <View className="w-full max-w-screen-md">
-          <ThemePreviewCard />
+          <DesignSystem />
         </View>
       </ScrollView>
     </Screen>
