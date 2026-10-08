@@ -8,17 +8,14 @@ export default function LoginScreen() {
 
   return (
     <Screen>
-      <View className="flex-1 items-center justify-center bg-red-500">
-        <Text className="text-3xl font-bold text-white">TEST</Text>
-      </View>
       <View className="flex-1 justify-center gap-4 px-4">
-        <Text className="text-2xl font-semibold text-foreground">Login</Text>
+        <Text className="font-semibold text-foreground text-2xl">Login</Text>
 
         <Pressable
-          className="rounded-lg bg-primary px-4 py-3"
+          className="bg-primary px-4 py-3 rounded-lg"
           onPress={signIn}
         >
-          <Text className="text-center font-semibold text-primary-foreground">
+          <Text className="font-semibold text-primary-foreground text-center">
             Log in
           </Text>
         </Pressable>
