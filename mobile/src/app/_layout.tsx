@@ -7,15 +7,15 @@ import { PortalHost } from '@rn-primitives/portal';
 import { useColorScheme } from 'nativewind';
 
 import { useAuthStore } from '@/stores/auth-store';
-import { NAV_THEME } from '@/lib/theme';
+import { useNavTheme } from '@/hooks/use-nav-theme';
 
 export default function RootLayout() {
   const isLoggedIn = useAuthStore(state => state.isLoggedIn);
   const { colorScheme } = useColorScheme();
-  const theme = colorScheme ?? 'light';
+  const theme = useNavTheme();
 
   return (
-    <ThemeProvider value={NAV_THEME[theme]}>
+    <ThemeProvider value={theme}>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
 
       <Stack screenOptions={{ headerShown: false }}>
