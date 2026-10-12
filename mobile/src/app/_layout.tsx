@@ -4,19 +4,28 @@ import { Stack } from 'expo-router';
 import { ThemeProvider } from 'expo-router/react-navigation';
 import { StatusBar } from 'expo-status-bar';
 import { PortalHost } from '@rn-primitives/portal';
-import { useColorScheme } from 'nativewind';
+import { useEffect } from 'react';
+import { Platform, StatusBar as NativeStatusBar, View } from 'react-native';
 
 import { useAuthStore } from '@/stores/auth-store';
 import { useNavTheme } from '@/hooks/use-nav-theme';
 
 export default function RootLayout() {
   const isLoggedIn = useAuthStore(state => state.isLoggedIn);
-  const { colorScheme } = useColorScheme();
   const theme = useNavTheme();
+  const backgroundColor = theme.colors.background;
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      if (Platform.Version < 35) {
+        NativeStatusBar.setBackgroundColor(backgroundColor);
+      }
+    }
+  }, [backgroundColor]);
 
   return (
     <ThemeProvider value={theme}>
-      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+      <StatusBar style={theme.dark ? 'light' : 'dark'} />
 
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Protected guard={!isLoggedIn}>
