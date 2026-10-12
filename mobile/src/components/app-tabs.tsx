@@ -6,16 +6,17 @@ export default function AppTabs() {
   const card = useHslColor('--card');
   const mutedForeground = useHslColor('--muted-foreground');
   const primary = useHslColor('--primary');
+  const accent = useHslColor('--accent');
 
   return (
     <NativeTabs
       minimizeBehavior="onScrollDown"
       rippleColor={card}
       backgroundColor={card}
-      indicatorColor={primary}
+      indicatorColor={Platform.OS === 'android' ? accent : primary}
       iconColor={{
         default: mutedForeground,
-        selected: Platform.OS == 'ios' ? primary : card,
+        selected: primary,
       }}
       labelStyle={{
         default: {
