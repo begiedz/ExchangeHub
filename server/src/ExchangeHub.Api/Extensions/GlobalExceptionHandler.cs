@@ -28,6 +28,21 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
             });
         }
 
+        if (exception is ExchangeHub.Application.Wallets.ConcurrencyConflictException)
+        {
+            http.Response.StatusCode = StatusCodes.Status409Conflict;
+            return await problems.TryWriteAsync(new ProblemDetailsContext
+            {
+                HttpContext = http,
+                ProblemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status409Conflict,
+                    Title = "Request.Conflict",
+                    Detail = "The data was changed by another request. Please retry."
+                }
+            });
+        }
+
         logger.LogError(exception, "Unhandled exception for {Method} {Path}", http.Request.Method, http.Request.Path);
 
         http.Response.StatusCode = StatusCodes.Status500InternalServerError;

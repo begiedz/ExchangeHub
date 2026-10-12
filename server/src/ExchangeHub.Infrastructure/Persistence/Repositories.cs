@@ -41,3 +41,14 @@ internal sealed class RefreshTokenRepository(AppDbContext db) : IRefreshTokenRep
         active.ForEach(t => t.Revoke(nowUtc));
     }
 }
+
+internal sealed class BalanceRepository(AppDbContext db) : ExchangeHub.Application.Wallets.IBalanceRepository
+{
+    public async Task<IReadOnlyList<ExchangeHub.Domain.Wallets.Balance>> GetForUser(Guid userId, CancellationToken ct) =>
+        await db.Balances.Where(b => b.UserId == userId).ToListAsync(ct);
+
+    public Task<ExchangeHub.Domain.Wallets.Balance?> Get(Guid userId, string currencyCode, CancellationToken ct) =>
+        db.Balances.FirstOrDefaultAsync(b => b.UserId == userId && b.CurrencyCode == currencyCode, ct);
+
+    public void Add(ExchangeHub.Domain.Wallets.Balance balance) => db.Balances.Add(balance);
+}

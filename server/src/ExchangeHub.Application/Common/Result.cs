@@ -7,7 +7,8 @@ public enum ErrorType
     Forbidden,
     NotFound,
     Conflict,
-    TooManyRequests
+    TooManyRequests,
+    ServiceUnavailable
 }
 
 public sealed record Error(string Code, string Description, ErrorType Type);

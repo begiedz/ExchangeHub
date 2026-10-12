@@ -1,7 +1,10 @@
 using ExchangeHub.Application.Abstractions;
 using ExchangeHub.Application.Abstractions.Auth;
 using ExchangeHub.Application.Abstractions.Persistence;
+using ExchangeHub.Application.Rates;
 using ExchangeHub.Infrastructure.Auth;
+using ExchangeHub.Infrastructure.Nbp;
+using Microsoft.Extensions.Options;
 using ExchangeHub.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +23,7 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AppDbContext>());
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<ExchangeHub.Application.Wallets.IBalanceRepository, BalanceRepository>();
 
         services.AddSingleton<IClock, SystemClock>();
         services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
@@ -32,6 +36,15 @@ public static class DependencyInjection
 
         services.AddOptions<LoginProtectionOptions>()
             .Bind(configuration.GetSection(LoginProtectionOptions.SectionName));
+
+        services.AddOptions<NbpOptions>().Bind(configuration.GetSection(NbpOptions.SectionName));
+        services.AddHttpClient(NbpOptions.HttpClientName, (sp, client) =>
+            {
+                client.BaseAddress = new Uri(sp.GetRequiredService<IOptions<NbpOptions>>().Value.BaseUrl);
+                client.DefaultRequestHeaders.Accept.Add(new("application/json"));
+            })
+            .AddStandardResilienceHandler(); // timeouts, retries and circuit breaker for NBP outages
+        services.AddSingleton<IExchangeRateProvider, NbpExchangeRateProvider>();
 
         return services;
     }
