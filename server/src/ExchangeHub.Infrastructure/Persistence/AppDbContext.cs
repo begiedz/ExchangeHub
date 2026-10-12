@@ -9,6 +9,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<User> Users => Set<User>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<ExchangeHub.Domain.Wallets.Balance> Balances => Set<ExchangeHub.Domain.Wallets.Balance>();
+    public DbSet<ExchangeHub.Domain.Wallets.Transaction> Transactions => Set<ExchangeHub.Domain.Wallets.Transaction>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) =>
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);

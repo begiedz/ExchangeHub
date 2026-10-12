@@ -5,6 +5,7 @@
     <Project Path="src/ExchangeHub.Infrastructure/ExchangeHub.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/ExchangeHub.Api.IntegrationTests/ExchangeHub.Api.IntegrationTests.csproj" />
     <Project Path="tests/ExchangeHub.Application.Tests/ExchangeHub.Application.Tests.csproj" />
     <Project Path="tests/ExchangeHub.Infrastructure.Tests/ExchangeHub.Infrastructure.Tests.csproj" />
   </Folder>
