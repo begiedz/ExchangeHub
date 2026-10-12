@@ -2,7 +2,6 @@ import '../global.css';
 
 import { Stack } from 'expo-router';
 import { ThemeProvider } from 'expo-router/react-navigation';
-import { NavigationBar } from 'expo-navigation-bar';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { PortalHost } from '@rn-primitives/portal';
@@ -34,9 +33,6 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={theme}>
       <StatusBar style={theme.dark ? 'light' : 'dark'} />
-      {Platform.OS === 'android' && (
-        <NavigationBar style={theme.dark ? 'light' : 'dark'} />
-      )}
 
       <Stack
         screenOptions={{ headerShown: false }}
