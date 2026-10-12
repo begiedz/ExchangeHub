@@ -7,8 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
+builder.Services.AddApiDocumentation();
 builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>("database");
 
 builder.Services
     .AddApplication()
@@ -23,6 +25,7 @@ app.UseStatusCodePages();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwaggerUI(o => o.SwaggerEndpoint("/openapi/v1.json", "ExchangeHub API v1"));
 
     using var scope = app.Services.CreateScope();
     await scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.MigrateAsync();
@@ -32,6 +35,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHealthChecks("/health").AllowAnonymous().WithTags("Health");
 app.MapAuthEndpoints();
 
 app.Run();
