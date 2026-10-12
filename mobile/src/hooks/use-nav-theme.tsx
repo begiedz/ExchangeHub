@@ -1,19 +1,20 @@
-import { useUnstableNativeVariable, useColorScheme } from 'nativewind';
+import { useColorScheme } from 'nativewind';
 import {
   DarkTheme,
   DefaultTheme,
   type Theme,
 } from 'expo-router/react-navigation';
+import { useHslColor } from '@/hooks/use-hsl-color';
 
 export function useNavTheme(): Theme {
   const { colorScheme } = useColorScheme();
 
-  const background = useUnstableNativeVariable('--background');
-  const foreground = useUnstableNativeVariable('--foreground');
-  const card = useUnstableNativeVariable('--card');
-  const border = useUnstableNativeVariable('--border');
-  const primary = useUnstableNativeVariable('--primary');
-  const destructive = useUnstableNativeVariable('--destructive');
+  const background = useHslColor('--background');
+  const foreground = useHslColor('--foreground');
+  const card = useHslColor('--card');
+  const border = useHslColor('--border');
+  const primary = useHslColor('--primary');
+  const destructive = useHslColor('--destructive');
 
   const baseTheme = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
 
@@ -21,12 +22,12 @@ export function useNavTheme(): Theme {
     ...baseTheme,
     colors: {
       ...baseTheme.colors,
-      background: `hsl(${background})`,
-      border: `hsl(${border})`,
-      card: `hsl(${card})`,
-      notification: `hsl(${destructive})`,
-      primary: `hsl(${primary})`,
-      text: `hsl(${foreground})`,
+      background,
+      border,
+      card,
+      notification: destructive,
+      primary,
+      text: foreground,
     },
   };
 }
