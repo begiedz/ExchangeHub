@@ -39,6 +39,7 @@ app.MapHealthChecks("/health").AllowAnonymous().WithTags("Health");
 app.MapAuthEndpoints();
 app.MapRatesEndpoints();
 app.MapWalletEndpoints();
+app.MapTransactionEndpoints();
 
 app.Run();
 

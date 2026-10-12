@@ -16,8 +16,8 @@ Api  ──►  Application  ◄──  Infrastructure
 
 | Project | Responsibility |
 |---|---|
-| `ExchangeHub.Domain` | Entities and their invariants (`User`, `RefreshToken`, `Balance`). No dependencies. |
-| `ExchangeHub.Application` | Use cases (`Auth/*`, `Wallets/*`, `Rates/*`), `Result` type and the interfaces Infrastructure implements. |
+| `ExchangeHub.Domain` | Entities and their invariants (`User`, `RefreshToken`, `Balance`, `Transaction`). No dependencies. |
+| `ExchangeHub.Application` | Use cases (`Auth/*`, `Wallets/*`, `Transactions/*`, `Rates/*`), `Result` type and the interfaces Infrastructure implements. |
 | `ExchangeHub.Infrastructure` | EF Core + PostgreSQL, PBKDF2 hashing, JWT, NBP client with cache and resilience. |
 | `ExchangeHub.Api` | Endpoints, JWT authentication, OpenAPI, error handling. Maps `Result` to HTTP. |
 
@@ -81,7 +81,8 @@ dotnet run --project src/ExchangeHub.Api
 | POST | `/api/auth/logout-all` | yes | End every session of the user. |
 | GET | `/api/users/me` | yes | The current user. |
 | GET | `/api/wallet` | yes | Balances of the current user. |
-| POST | `/api/wallet/top-up` | yes | Simulated PLN top-up. |
+| POST | `/api/wallet/top-up` | yes | Simulated PLN top-up; also writes a history entry in the same database transaction. |
+| GET | `/api/transactions` | yes | History of the current user, newest first. `?page=1&pageSize=20` (max 100). |
 | GET | `/api/rates/current` | yes | NBP table C exactly as published. |
 | GET | `/health` | no | Liveness including the database. |
 

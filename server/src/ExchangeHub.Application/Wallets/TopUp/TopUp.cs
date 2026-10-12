@@ -1,6 +1,8 @@
+using ExchangeHub.Application.Abstractions;
 using ExchangeHub.Application.Abstractions.Messaging;
 using ExchangeHub.Application.Abstractions.Persistence;
 using ExchangeHub.Application.Common;
+using ExchangeHub.Application.Transactions;
 using ExchangeHub.Domain.Wallets;
 
 namespace ExchangeHub.Application.Wallets.TopUp;
@@ -8,7 +10,11 @@ namespace ExchangeHub.Application.Wallets.TopUp;
 public sealed record TopUpCommand(Guid UserId, decimal Amount) : ICommand<BalanceDto>;
 
 /// <summary>Simulated account top-up: credits PLN, no real payment involved.</summary>
-internal sealed class TopUpHandler(IBalanceRepository balances, IUnitOfWork uow)
+internal sealed class TopUpHandler(
+    IBalanceRepository balances,
+    ITransactionRepository transactions,
+    IUnitOfWork uow,
+    IClock clock)
     : ICommandHandler<TopUpCommand, BalanceDto>
 {
     public const decimal MaxAmount = 1_000_000m;
@@ -31,6 +37,7 @@ internal sealed class TopUpHandler(IBalanceRepository balances, IUnitOfWork uow)
         }
 
         balance.Credit(command.Amount);
+        transactions.Add(Transaction.TopUp(command.UserId, command.Amount, clock.UtcNow));
         await uow.SaveChanges(ct);
 
         return new BalanceDto(balance.CurrencyCode, balance.Amount);

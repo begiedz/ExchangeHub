@@ -24,6 +24,7 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<ExchangeHub.Application.Wallets.IBalanceRepository, BalanceRepository>();
+        services.AddScoped<ExchangeHub.Application.Transactions.ITransactionRepository, TransactionRepository>();
 
         services.AddSingleton<IClock, SystemClock>();
         services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();

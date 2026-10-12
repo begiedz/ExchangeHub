@@ -52,3 +52,22 @@ internal sealed class BalanceRepository(AppDbContext db) : ExchangeHub.Applicati
 
     public void Add(ExchangeHub.Domain.Wallets.Balance balance) => db.Balances.Add(balance);
 }
+
+internal sealed class TransactionRepository(AppDbContext db) : ExchangeHub.Application.Transactions.ITransactionRepository
+{
+    public void Add(ExchangeHub.Domain.Wallets.Transaction transaction) => db.Transactions.Add(transaction);
+
+    public async Task<(IReadOnlyList<ExchangeHub.Domain.Wallets.Transaction> Items, int Total)> GetPage(
+        Guid userId, int skip, int take, CancellationToken ct)
+    {
+        var query = db.Transactions.AsNoTracking().Where(t => t.UserId == userId);
+
+        var total = await query.CountAsync(ct);
+        var items = await query
+            .OrderByDescending(t => t.CreatedAtUtc).ThenByDescending(t => t.Id)
+            .Skip(skip).Take(take)
+            .ToListAsync(ct);
+
+        return (items, total);
+    }
+}

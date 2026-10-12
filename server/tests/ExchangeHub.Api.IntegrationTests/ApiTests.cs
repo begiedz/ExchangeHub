@@ -23,6 +23,7 @@ public class ApiTests(ApiFactory factory)
     [InlineData("GET", "/api/wallet")]
     [InlineData("POST", "/api/wallet/top-up")]
     [InlineData("GET", "/api/rates/current")]
+    [InlineData("GET", "/api/transactions")]
     [InlineData("POST", "/api/auth/logout")]
     [InlineData("POST", "/api/auth/logout-all")]
     public async Task PrivateEndpoints_RejectAnonymousAndGarbageTokens(string method, string path)
@@ -159,6 +160,56 @@ public class ApiTests(ApiFactory factory)
     }
 
     [Fact]
+    public async Task History_RecordsTopUps_NewestFirst_AndIsPaged()
+    {
+        var (client, _) = await factory.NewAuthenticatedUser();
+        foreach (var amount in new[] { 10m, 20m, 30m })
+            await client.PostAsJsonAsync("/api/wallet/top-up", new { amount }, Ct);
+
+        var all = await client.GetFromJsonAsync<History>("/api/transactions", Ct);
+        Assert.Equal(3, all!.TotalCount);
+        Assert.Equal([30m, 20m, 10m], all.Items.Select(t => t.TargetAmount));
+        var newest = all.Items[0];
+        Assert.Equal("TopUp", newest.Type);
+        Assert.Equal("PLN", newest.TargetCurrency);
+        Assert.Null(newest.ExchangeRate);
+
+        var secondPage = await client.GetFromJsonAsync<History>("/api/transactions?page=2&pageSize=2", Ct);
+        Assert.Equal(10m, Assert.Single(secondPage!.Items).TargetAmount);
+        Assert.Equal(3, secondPage.TotalCount);
+    }
+
+    [Fact]
+    public async Task History_IsIsolatedPerUser_AndRejectsBadPaging()
+    {
+        var (alice, _) = await factory.NewAuthenticatedUser();
+        var (bob, _) = await factory.NewAuthenticatedUser();
+        await alice.PostAsJsonAsync("/api/wallet/top-up", new { amount = 5m }, Ct);
+
+        Assert.Empty((await bob.GetFromJsonAsync<History>("/api/transactions", Ct))!.Items);
+
+        foreach (var query in new[] { "page=0", "pageSize=0", "pageSize=101" })
+            Assert.Equal(HttpStatusCode.BadRequest, (await bob.GetAsync($"/api/transactions?{query}", Ct)).StatusCode);
+    }
+
+    [Fact]
+    public async Task BalanceAndHistory_StayConsistent_UnderConcurrentTopUps()
+    {
+        var (client, _) = await factory.NewAuthenticatedUser();
+
+        var responses = await Task.WhenAll(Enumerable.Range(0, 12)
+            .Select(_ => client.PostAsJsonAsync("/api/wallet/top-up", new { amount = 10m }, Ct)));
+        var succeeded = responses.Count(r => r.StatusCode == HttpStatusCode.OK);
+
+        var wallet = await client.GetFromJsonAsync<Wallet>("/api/wallet", Ct);
+        var history = await client.GetFromJsonAsync<History>("/api/transactions?pageSize=100", Ct);
+
+        // A top-up that lost the race must leave no history entry, and every entry must be backed by balance.
+        Assert.Equal(succeeded, history!.TotalCount);
+        Assert.Equal(history.Items.Sum(t => t.TargetAmount), Assert.Single(wallet!.Balances).Amount);
+    }
+
+    [Fact]
     public async Task Rates_AreReturnedForAuthenticatedUsers()
     {
         var (client, _) = await factory.NewAuthenticatedUser();
@@ -182,6 +233,8 @@ public class ApiTests(ApiFactory factory)
     private sealed record Me(Guid Id, string Email);
     private sealed record Balance(string CurrencyCode, decimal Amount);
     private sealed record Wallet(List<Balance> Balances);
+    private sealed record HistoryItem(string Type, string TargetCurrency, decimal TargetAmount, decimal? ExchangeRate);
+    private sealed record History(List<HistoryItem> Items, int TotalCount);
     private sealed record Rate(string Code);
     private sealed record RateTable(List<Rate> Rates);
 }

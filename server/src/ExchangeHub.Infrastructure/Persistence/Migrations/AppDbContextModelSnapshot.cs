@@ -125,6 +125,51 @@ namespace ExchangeHub.Infrastructure.Persistence.Migrations
                     b.ToTable("balances", (string)null);
                 });
 
+            modelBuilder.Entity("ExchangeHub.Domain.Wallets.Transaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("ExchangeRate")
+                        .HasPrecision(18, 8)
+                        .HasColumnType("numeric(18,8)");
+
+                    b.Property<decimal?>("SourceAmount")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
+
+                    b.Property<string>("SourceCurrency")
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
+
+                    b.Property<decimal>("TargetAmount")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
+
+                    b.Property<string>("TargetCurrency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "CreatedAtUtc");
+
+                    b.ToTable("transactions", (string)null);
+                });
+
             modelBuilder.Entity("ExchangeHub.Domain.Users.RefreshToken", b =>
                 {
                     b.HasOne("ExchangeHub.Domain.Users.User", null)
@@ -135,6 +180,15 @@ namespace ExchangeHub.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("ExchangeHub.Domain.Wallets.Balance", b =>
+                {
+                    b.HasOne("ExchangeHub.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ExchangeHub.Domain.Wallets.Transaction", b =>
                 {
                     b.HasOne("ExchangeHub.Domain.Users.User", null)
                         .WithMany()
