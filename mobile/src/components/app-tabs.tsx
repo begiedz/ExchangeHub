@@ -1,26 +1,28 @@
+import { useHslColor } from '@/hooks/use-hsl-color';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
-import { useUnstableNativeVariable } from 'nativewind';
+import { Platform } from 'react-native';
 
 export default function AppTabs() {
-  const surface = useUnstableNativeVariable('--surface');
-  const foreground = useUnstableNativeVariable('--foreground');
-  const mutedForeground = useUnstableNativeVariable('--muted-foreground');
-  const primary = useUnstableNativeVariable('--primary');
+  const card = useHslColor('--card');
+  const mutedForeground = useHslColor('--muted-foreground');
+  const primary = useHslColor('--primary');
 
   return (
     <NativeTabs
-      backgroundColor={surface}
+      minimizeBehavior="onScrollDown"
+      rippleColor={card}
+      backgroundColor={card}
       indicatorColor={primary}
       iconColor={{
         default: mutedForeground,
-        selected: primary,
+        selected: Platform.OS == 'ios' ? primary : card,
       }}
       labelStyle={{
         default: {
           color: mutedForeground,
         },
         selected: {
-          color: foreground,
+          color: primary,
         },
       }}
     >
