@@ -2,7 +2,9 @@ import '../global.css';
 
 import { Stack } from 'expo-router';
 import { ThemeProvider } from 'expo-router/react-navigation';
+import { NavigationBar } from 'expo-navigation-bar';
 import { StatusBar } from 'expo-status-bar';
+import * as SystemUI from 'expo-system-ui';
 import { PortalHost } from '@rn-primitives/portal';
 import { useEffect } from 'react';
 import { Platform, StatusBar as NativeStatusBar } from 'react-native';
@@ -23,12 +25,18 @@ export default function RootLayout() {
       if (Platform.Version < 35) {
         NativeStatusBar.setBackgroundColor(theme.colors.background);
       }
+      SystemUI.setBackgroundColorAsync(androidWindowColor).catch(error => {
+        console.warn('Failed to update the Android window background', error);
+      });
     }
   }, [androidWindowColor, theme.colors.background]);
 
   return (
     <ThemeProvider value={theme}>
       <StatusBar style={theme.dark ? 'light' : 'dark'} />
+      {Platform.OS === 'android' && (
+        <NavigationBar style={theme.dark ? 'light' : 'dark'} />
+      )}
 
       <Stack
         screenOptions={{ headerShown: false }}
