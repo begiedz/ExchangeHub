@@ -27,4 +27,15 @@ export const tokenStorage = {
   deleteRefreshToken() {
     return SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
   },
+
+  async setTokens(accessToken: string, refreshToken: string) {
+    await Promise.all([
+      this.setAccessToken(accessToken),
+      this.setRefreshToken(refreshToken),
+    ]);
+  },
+
+  async clearTokens() {
+    await Promise.all([this.deleteAccessToken(), this.deleteRefreshToken()]);
+  },
 };
