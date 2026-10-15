@@ -15,8 +15,6 @@ export default function LoginScreen() {
     </View>
       <Text className="text-2xl font-semibold text-foreground">Log in to your account</Text>
       <Text className="text-sm text-muted-foreground">Access your currency exchange dashboard and continue trading securely.</Text>
-
-    
     <SignInForm/>
     </View>
   );

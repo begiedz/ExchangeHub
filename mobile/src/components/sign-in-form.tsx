@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { Text } from '@/components/ui/text';
 import * as React from 'react';
 import { Pressable, type TextInput, View } from 'react-native';
+import { useRouter } from 'expo-router';
 
 export function SignInForm() {
   const passwordInputRef = React.useRef<TextInput>(null);
@@ -24,6 +25,7 @@ export function SignInForm() {
   function onSubmit() {
     // TODO: Submit form and navigate to protected screen if successful
   }
+  const router = useRouter();
 
   return (
     <View className="gap-6">
@@ -72,17 +74,11 @@ export function SignInForm() {
             Don&apos;t have an account?{' '}
             <Pressable
               onPress={() => {
-                // TODO: Navigate to sign up screen
+                router.push('/register');
               }}>
               <Text className="text-sm underline underline-offset-4 text-primary">Sign up</Text>
             </Pressable>
           </Text>
-          <View className="flex-row items-center">
-            <Separator className="flex-1" />
-            <Text className="text-muted-foreground px-4 text-sm">or</Text>
-            <Separator className="flex-1" />
-          </View>
-          <SocialConnections />
         </CardContent>
       </Card>
     </View>

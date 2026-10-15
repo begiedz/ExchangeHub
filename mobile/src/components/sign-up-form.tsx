@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { Text } from '@/components/ui/text';
 import * as React from 'react';
 import { Pressable, TextInput, View } from 'react-native';
+import { useRouter } from 'expo-router';
 
 export function SignUpForm() {
   const passwordInputRef = React.useRef<TextInput>(null);
@@ -24,16 +25,10 @@ export function SignUpForm() {
   function onSubmit() {
     // TODO: Submit form and navigate to protected screen if successful
   }
-
+  const router = useRouter();
   return (
     <View className="gap-6">
       <Card className="border-border/0 sm:border-border shadow-none sm:shadow-sm sm:shadow-black/5">
-        <CardHeader>
-          <CardTitle className="text-center text-xl sm:text-left">Create your account</CardTitle>
-          <CardDescription className="text-center sm:text-left">
-            Welcome! Please fill in the details to get started.
-          </CardDescription>
-        </CardHeader>
         <CardContent className="gap-6">
           <View className="gap-6">
             <View className="gap-1.5">
@@ -61,7 +56,7 @@ export function SignUpForm() {
                 onSubmitEditing={onSubmit}
               />
             </View>
-            <Button className="w-full" onPress={onSubmit}>
+            <Button className="w-full bg-primary" onPress={onSubmit}>
               <Text>Continue</Text>
             </Button>
           </View>
@@ -69,17 +64,11 @@ export function SignUpForm() {
             Already have an account?{' '}
             <Pressable
               onPress={() => {
-                // TODO: Navigate to sign in screen
+                router.push('/login');
               }}>
-              <Text className="text-sm underline underline-offset-4">Sign in</Text>
+              <Text className="text-sm underline underline-offset-4 text-primary">Sign in</Text>
             </Pressable>
           </Text>
-          <View className="flex-row items-center">
-            <Separator className="flex-1" />
-            <Text className="text-muted-foreground px-4 text-sm">or</Text>
-            <Separator className="flex-1" />
-          </View>
-          <SocialConnections />
         </CardContent>
       </Card>
     </View>
