@@ -14,6 +14,7 @@ import { Text } from '@/components/ui/text';
 import * as React from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 
 export function SignUpForm() {
   const passwordInputRef = React.useRef<TextInput>(null);
@@ -25,12 +26,28 @@ export function SignUpForm() {
   function onSubmit() {
     // TODO: Submit form and navigate to protected screen if successful
   }
+  const [fullName, setFullName] = useState('');
+
   const router = useRouter();
   return (
     <View className="gap-6">
       <Card className="border-border/0 sm:border-border shadow-none sm:shadow-sm sm:shadow-black/5">
         <CardContent className="gap-6">
           <View className="gap-6">
+            <View className="gap-1.5">
+              <Label htmlFor="email">Full Name</Label>
+              <Input
+                id="email"
+                value={fullName}
+                onChangeText={setFullName}
+                placeholder="Enter your full name"
+                autoCapitalize="words"
+                onSubmitEditing={onEmailSubmitEditing}
+                returnKeyType="next"
+                submitBehavior="submit"
+                autoCorrect={false}
+              />
+            </View>
             <View className="gap-1.5">
               <Label htmlFor="email">Email</Label>
               <Input
