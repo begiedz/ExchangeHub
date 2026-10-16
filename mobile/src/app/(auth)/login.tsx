@@ -1,21 +1,21 @@
-import { Pressable, Text, View } from 'react-native';
-import { useAuthStore } from '@/stores/auth-store';
+import { Text, View, Image } from 'react-native';
+import { SignInForm } from '@/components/sign-in-form';
 
 export default function LoginScreen() {
-  const signIn = useAuthStore(state => state.signIn);
+
 
   return (
     <View className="flex-1 justify-center gap-4 px-4">
-      <Text className="text-2xl font-semibold text-foreground">Login</Text>
-
-      <Pressable
-        className="rounded-lg bg-primary px-4 py-3"
-        onPress={signIn}
-      >
-        <Text className="text-center font-semibold text-primary-foreground">
-          Log in
-        </Text>
-      </Pressable>
+      <View className="bg-primary rounded-xl p-2 self-center">
+      <Image
+      source={require('@/assets/images/LogoExchangeHub.png')}
+      className="w-16 h-16 "
+      resizeMode="contain"
+    />
+    </View>
+      <Text className="text-2xl font-semibold text-foreground">Log in to your account</Text>
+      <Text className="text-sm text-muted-foreground">Access your currency exchange dashboard and continue trading securely.</Text>
+    <SignInForm/>
     </View>
   );
 }
