@@ -1,48 +1,61 @@
-import { SocialConnections } from '@/components/social-connections';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Text } from '@/components/ui/text';
-import * as React from 'react';
 import { Pressable, type TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { login } from '@/api/auth';
+import { useAuthStore } from '@/stores/auth-store';
+import axios from 'axios';
 
 export function SignInForm() {
-  const passwordInputRef = React.useRef<TextInput>(null);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  function onEmailSubmitEditing() {
-    passwordInputRef.current?.focus();
-  }
-
-  function onSubmit() {
-    // TODO: Submit form and navigate to protected screen if successful
-  }
+  const signIn = useAuthStore(state => state.signIn);
   const router = useRouter();
+
+  async function onSubmit() {
+    if (isSubmitting) return;
+
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      await login({ email: email.trim(), password });
+
+      signIn();
+      router.replace('/(tabs)');
+    } catch (error: unknown) {
+      if (axios.isAxiosError<{ detail: string }>(error)) {
+        setError(error.response?.data?.detail ?? 'Something went wrong.');
+      } else {
+        setError('An unexpected error occurred.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <View className="gap-6">
-      <Card className="border-border/0 sm:border-border shadow-none sm:shadow-sm sm:shadow-black/5">
+      <Card className="border-border/0 shadow-none sm:border-border sm:shadow-sm sm:shadow-black/5">
         <CardContent className="gap-6">
           <View className="gap-6">
             <View className="gap-1.5">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                placeholder="m@example.com"
+                placeholder="me@example.com"
                 keyboardType="email-address"
                 autoComplete="email"
                 autoCapitalize="none"
-                onSubmitEditing={onEmailSubmitEditing}
                 returnKeyType="next"
-                submitBehavior="submit"
+                onChangeText={(text: typeof password) => setEmail(text)}
               />
             </View>
             <View className="gap-1.5">
@@ -51,32 +64,44 @@ export function SignInForm() {
                 <Button
                   variant="link"
                   size="sm"
-                  className="web:h-fit ml-auto h-4 px-1 py-0 sm:h-4"
+                  className="ml-auto h-4 px-1 py-0 web:h-fit sm:h-4"
                   onPress={() => {
-                    // TODO: Navigate to forgot password screen
-                  }}>
-                  <Text className="font-normal leading-4 text-primary">Forgot your password?</Text>
+                    router.replace('/register');
+                  }}
+                >
+                  <Text className="font-normal leading-4 text-primary">
+                    Forgot your password?
+                  </Text>
                 </Button>
               </View>
               <Input
-                ref={passwordInputRef}
                 id="password"
+                placeholder="Enter your password"
                 secureTextEntry
                 returnKeyType="send"
-                onSubmitEditing={onSubmit}
+                onChangeText={(text: typeof password) => setPassword(text)}
               />
             </View>
-            <Button className="w-full bg-primary" onPress={onSubmit}>
-              <Text>Continue</Text>
+            <Button
+              className="w-full bg-primary"
+              onPress={onSubmit}
+            >
+              <Text>Sign in</Text>
             </Button>
+            <View className="flex items-center">
+              <Text className="text-destructive">{error ? error : ' '}</Text>
+            </View>
           </View>
           <Text className="text-center text-sm">
             Don&apos;t have an account?{' '}
             <Pressable
               onPress={() => {
                 router.push('/register');
-              }}>
-              <Text className="text-sm underline underline-offset-4 text-primary">Sign up</Text>
+              }}
+            >
+              <Text className="text-sm text-primary underline underline-offset-4">
+                Sign up
+              </Text>
             </Pressable>
           </Text>
         </CardContent>
