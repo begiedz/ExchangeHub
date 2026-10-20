@@ -1,0 +1,127 @@
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Text } from '@/components/ui/text';
+import { Pressable, type TextInput, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useRef, useState } from 'react';
+import { login } from '@/api/auth';
+import { useAuthStore } from '@/stores/auth-store';
+import axios from 'axios';
+import React from 'react';
+
+export function SignInForm() {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const signIn = useAuthStore(state => state.signIn);
+  const router = useRouter();
+
+  const passwordInputRef = useRef<TextInput>(null);
+  function onEmailSubmitEditing() {
+    passwordInputRef.current?.focus();
+  }
+
+  async function onSubmit() {
+    if (isSubmitting) return;
+
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      await login({ email: email.trim(), password });
+
+      signIn();
+      router.replace('/(tabs)');
+    } catch (error: unknown) {
+      if (axios.isAxiosError<{ detail: string }>(error)) {
+        setError(error.response?.data?.detail ?? 'Something went wrong.');
+      } else {
+        setError('An unexpected error occurred.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <View className="gap-6">
+      <Card className="border-border/0 shadow-none sm:border-border sm:shadow-sm sm:shadow-black/5">
+        <CardContent className="gap-6">
+          <View className="gap-6">
+            <View className="gap-1.5">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                value={email}
+                placeholder="name@example.com"
+                keyboardType="email-address"
+                autoComplete="email"
+                autoCapitalize="none"
+                onSubmitEditing={onEmailSubmitEditing}
+                returnKeyType="next"
+                onChangeText={text => setEmail(text)}
+                className="focus:border-primary"
+              />
+            </View>
+            <View className="gap-1.5">
+              <View className="flex-row items-center">
+                <Label htmlFor="password">Password</Label>
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="ml-auto h-4 px-1 py-0 web:h-fit sm:h-4"
+                  onPress={() => {
+                    router.replace('/register');
+                  }}
+                >
+                  <Text className="font-normal leading-4 text-primary">
+                    Forgot your password?
+                  </Text>
+                </Button>
+              </View>
+              <Input
+                ref={passwordInputRef}
+                id="password"
+                value={password}
+                placeholder="Enter your password"
+                secureTextEntry
+                returnKeyType="send"
+                onSubmitEditing={onSubmit}
+                onChangeText={text => setPassword(text)}
+                className="focus:border-primary"
+              />
+            </View>
+            <Button
+              className="w-full bg-primary"
+              onPress={onSubmit}
+              disabled={isSubmitting}
+            >
+              <Text>{isSubmitting ? 'Signing in...' : 'Sign in'}</Text>
+            </Button>
+            {error && (
+              <View className="flex items-center">
+                <Text className="text-destructive">{error}</Text>
+              </View>
+            )}
+          </View>
+          <Text className="text-center text-sm">
+            Don&apos;t have an account?{' '}
+            <Pressable
+              onPress={() => {
+                router.replace('/register');
+              }}
+            >
+              <Text className="text-sm text-primary underline underline-offset-4">
+                Sign up
+              </Text>
+            </Pressable>
+          </Text>
+        </CardContent>
+      </Card>
+    </View>
+  );
+}
