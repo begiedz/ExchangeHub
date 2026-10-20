@@ -5,10 +5,11 @@ import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
 import { Pressable, type TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { login } from '@/api/auth';
 import { useAuthStore } from '@/stores/auth-store';
 import axios from 'axios';
+import React from 'react';
 
 export function SignInForm() {
   const [email, setEmail] = useState<string>('');
@@ -18,6 +19,11 @@ export function SignInForm() {
 
   const signIn = useAuthStore(state => state.signIn);
   const router = useRouter();
+
+  const passwordInputRef = useRef<TextInput>(null);
+  function onEmailSubmitEditing() {
+    passwordInputRef.current?.focus();
+  }
 
   async function onSubmit() {
     if (isSubmitting) return;
@@ -50,12 +56,15 @@ export function SignInForm() {
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                placeholder="me@example.com"
+                value={email}
+                placeholder="name@example.com"
                 keyboardType="email-address"
                 autoComplete="email"
                 autoCapitalize="none"
+                onSubmitEditing={onEmailSubmitEditing}
                 returnKeyType="next"
-                onChangeText={(text: typeof password) => setEmail(text)}
+                onChangeText={text => setEmail(text)}
+                className="focus:border-primary"
               />
             </View>
             <View className="gap-1.5">
@@ -75,28 +84,35 @@ export function SignInForm() {
                 </Button>
               </View>
               <Input
+                ref={passwordInputRef}
                 id="password"
+                value={password}
                 placeholder="Enter your password"
                 secureTextEntry
                 returnKeyType="send"
-                onChangeText={(text: typeof password) => setPassword(text)}
+                onSubmitEditing={onSubmit}
+                onChangeText={text => setPassword(text)}
+                className="focus:border-primary"
               />
             </View>
             <Button
               className="w-full bg-primary"
               onPress={onSubmit}
+              disabled={isSubmitting}
             >
-              <Text>Sign in</Text>
+              <Text>{isSubmitting ? 'Signing in...' : 'Sign in'}</Text>
             </Button>
-            <View className="flex items-center">
-              <Text className="text-destructive">{error ? error : ' '}</Text>
-            </View>
+            {error && (
+              <View className="flex items-center">
+                <Text className="text-destructive">{error}</Text>
+              </View>
+            )}
           </View>
           <Text className="text-center text-sm">
             Don&apos;t have an account?{' '}
             <Pressable
               onPress={() => {
-                router.push('/register');
+                router.replace('/register');
               }}
             >
               <Text className="text-sm text-primary underline underline-offset-4">
