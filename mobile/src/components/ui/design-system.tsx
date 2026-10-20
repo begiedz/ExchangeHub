@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { ScrollView, View } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { ScrollView, View ,Pressable} from 'react-native';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
-
+import { router, useRouter } from 'expo-router';
+import TransferTopUpScreen from '@/app/(tabs)/transferTopUp';
 // ============================================================
 // Shared
 // ============================================================
@@ -42,6 +43,7 @@ function Section({
 }
 
 function Divider() {
+
   return <View className="bg-border h-px" />;
 }
 
@@ -49,9 +51,16 @@ function Divider() {
 // 01. DESIGN TOKENS
 // ============================================================
 
-function DesignTokens() {
+function DesignTokens({ setHomeCard }: { setHomeCard: (card: string) => void }) {
+
   return (
     <View className="gap-8">
+      <Pressable
+      onPress={() => {
+          setHomeCard('transferTopUp');
+      }}>
+      <Text style={{backgroundColor:"lightblue"}}>Przejdź do okna Zasilenie konta</Text>
+    </Pressable>
       {/* Colors */}
       <Section
         title="Colors"
@@ -390,6 +399,7 @@ function DesignTokens() {
       </Section>
     </View>
   );
+
 }
 
 // ============================================================
@@ -821,7 +831,7 @@ function ComponentsPreview() {
 // MAIN
 // ============================================================
 
-export function DesignSystem() {
+export function DesignSystem({ setHomeCard }: { setHomeCard: (card: string) => void }) {
   return (
     <ScrollView
       className="flex-1 bg-background"
@@ -846,7 +856,7 @@ export function DesignSystem() {
         </CardHeader>
 
         <CardContent>
-          <DesignTokens />
+          <DesignTokens setHomeCard={setHomeCard} />
         </CardContent>
       </Card>
 
