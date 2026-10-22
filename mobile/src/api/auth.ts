@@ -45,7 +45,6 @@ export async function register(
 
 export async function login(input: LoginRequest): Promise<LoginResponse> {
   const { data } = await httpClient.post<LoginResponse>('/auth/login', input);
-
   await tokenStorage.setTokens(data.accessToken, data.refreshToken);
 
   return data;
