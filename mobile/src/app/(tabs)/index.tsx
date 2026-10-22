@@ -2,7 +2,7 @@ import { ScrollView, View } from 'react-native';
 import { DesignSystem } from '@/components/ui/design-system';
 import { Stack } from 'expo-router';
 import { useState } from 'react';
-import TransferTopUpScreen from '../transferTopUp';
+import TransferTopUpScreen from './transferTopUp';
 
 export default function HomeScreen() {
     const [homeCard, setHomeCard] = useState('designSystem');
