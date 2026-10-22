@@ -26,6 +26,9 @@ export function SignInForm() {
   }
 
   async function onSubmit() {
+    console.log('Submitting with email:', email, 'and password:', password); // Log the email and
+        console.log(isSubmitting, "isSubmitting"); // Log the email and
+
     if (isSubmitting) return;
 
     setError(null);
@@ -33,12 +36,11 @@ export function SignInForm() {
 
     try {
       await login({ email: email.trim(), password });
-
       signIn();
       router.replace('/(tabs)');
     } catch (error: unknown) {
       if (axios.isAxiosError<{ detail: string }>(error)) {
-        setError(error.response?.data?.detail ?? 'Something went wrong.');
+        setError(error.response?.data?.detail ?? error.message);
       } else {
         setError('An unexpected error occurred.');
       }
