@@ -68,6 +68,53 @@ public class AuthHandlerTests
         Assert.Equal(AuthErrors.InvalidCredentials, unknown.Error);
     }
 
+    [Theory]
+    [InlineData("long-password", false)]
+    [InlineData("long-password", true)]
+    [InlineData("long-email", false)]
+    [InlineData("long-email", true)]
+    [InlineData("invalid-email", false)]
+    [InlineData("missing-email", false)]
+    [InlineData("missing-password", true)]
+    public async Task Login_RejectsInvalidOrOversizedInput_WithoutHashingOrChangingAccount(string input, bool knownUser)
+    {
+        if (knownUser) await Register();
+        var hashes = _f.Hasher.HashCalls;
+        var saves = _f.Store.SaveCount;
+        var email = input switch
+        {
+            "long-email" => new string('a', 254) + "@example.com",
+            "invalid-email" => "not-an-email",
+            "missing-email" => null,
+            _ => Email
+        };
+        var password = input switch
+        {
+            "long-password" => new string('a', 129),
+            "missing-password" => null,
+            _ => Password
+        };
+
+        var result = await new LoginHandler(_f.Store, _f.Hasher, _f.Issuer, _f.Store, _f.Clock, _f.Protection)
+            .Handle(new(email!, password!), Ct);
+
+        Assert.Equal(AuthErrors.InvalidCredentials, result.Error);
+        Assert.Equal(hashes, _f.Hasher.HashCalls);
+        Assert.Equal(0, _f.Hasher.VerifyCalls);
+        Assert.Equal(saves, _f.Store.SaveCount);
+        Assert.All(_f.Store.Users, user => Assert.Equal(0, user.FailedLoginAttempts));
+    }
+
+    [Fact]
+    public async Task PasswordAtMaximumLength_CanBeRegisteredAndUsedToLogIn()
+    {
+        var password = "A1" + new string('a', 126);
+        var registered = await new RegisterUserHandler(_f.Store, _f.Hasher, _f.Store, _f.Clock)
+            .Handle(new(Email, password), Ct);
+        Assert.True(registered.IsSuccess);
+        Assert.True((await Login(password)).IsSuccess);
+    }
+
     [Fact]
     public async Task Login_LocksAccountAfterMaxFailures_EvenForCorrectPassword()
     {
