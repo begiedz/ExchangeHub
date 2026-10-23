@@ -6,19 +6,20 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  ScrollView,
 } from 'react-native';
 import { SignUpForm } from '@/components/sign-up-form';
 
 export default function RegisterScreen() {
   return (
-    <TouchableWithoutFeedback
-      onPress={Keyboard.dismiss}
-      accessible={false}
+    <ScrollView
+      className="flex-1"
+      contentContainerClassName="flex-grow mx-4"
+      automaticallyAdjustKeyboardInsets
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="interactive"
     >
-      <KeyboardAvoidingView
-        className="flex-1 justify-center gap-4 px-4"
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
+      <View className="flex-1 justify-center gap-4">
         <View className="self-center rounded-xl bg-primary p-2">
           <Image
             source={require('@/assets/images/LogoExchangeHub.png')}
@@ -33,7 +34,7 @@ export default function RegisterScreen() {
           Join thousands of traders exchanging currencies securely.
         </Text>
         <SignUpForm />
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+      </View>
+    </ScrollView>
   );
 }

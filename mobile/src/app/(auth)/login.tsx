@@ -1,24 +1,16 @@
-import {
-  Text,
-  View,
-  Image,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-  KeyboardAvoidingView,
-} from 'react-native';
+import { Text, View, Image, ScrollView } from 'react-native';
 import { SignInForm } from '@/components/sign-in-form';
 
 export default function LoginScreen() {
   return (
-    <TouchableWithoutFeedback
-      onPress={Keyboard.dismiss}
-      accessible={false}
+    <ScrollView
+      className="flex-1"
+      contentContainerClassName="flex-grow mx-4"
+      automaticallyAdjustKeyboardInsets
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="interactive"
     >
-      <KeyboardAvoidingView
-        className="flex-1 justify-center gap-4 px-4"
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
+      <View className="flex-1 justify-center gap-4">
         <View className="self-center rounded-xl bg-primary p-2">
           <Image
             source={require('@/assets/images/LogoExchangeHub.png')}
@@ -33,7 +25,7 @@ export default function LoginScreen() {
           Access your currency exchange dashboard and continue trading securely.
         </Text>
         <SignInForm />
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+      </View>
+    </ScrollView>
   );
 }

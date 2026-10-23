@@ -35,7 +35,7 @@ export function SignUpForm() {
       await login(credentials);
 
       signIn();
-      router.replace('/(tabs)');
+      router.replace('/(tabs)/(home)');
     } catch (error: unknown) {
       if (axios.isAxiosError<{ detail: string }>(error)) {
         setError(error.response?.data?.detail ?? 'Something went wrong.');
@@ -101,8 +101,8 @@ export function SignUpForm() {
               </View>
             )}
           </View>
-          <Text className="text-center text-sm">
-            Already have an account?{' '}
+          <View className="flex flex-row justify-center">
+            <Text className="text-sm">Already have an account? </Text>
             <Pressable
               onPress={() => {
                 router.replace('/login');
@@ -112,7 +112,7 @@ export function SignUpForm() {
                 Sign in
               </Text>
             </Pressable>
-          </Text>
+          </View>
         </CardContent>
       </Card>
     </View>
