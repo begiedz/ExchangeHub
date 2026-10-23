@@ -1,37 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
-import { useNavigation, useRouter } from 'expo-router';
-import { 
-  User, 
-  ArrowUpRight, 
-  ArrowDownLeft, 
-  ArrowDown, 
-  ChevronDown, 
-  Info 
-} from 'lucide-react-native';
-import TransferTopUpScreen from './home/transferTopUp';
-import HomeScreen from './home/home';
+import { ScrollView, View } from 'react-native';
+import { DesignSystem } from '@/components/ui/design-system';
 
-export default function HomeBase() {
-  const router = useRouter();
-  const [ homeCard, setHomeCard] = useState('home');  
-  const navigation = useNavigation();
-  
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('tabPress' as any, (e) => {
-      setHomeCard('home');
-    });
+import { useState } from 'react';
+import TransferTopUpScreen from './transferTopUp';
 
-    return unsubscribe;
-  }, [navigation]);
+export default function HomeScreen() {
+  const [homeCard, setHomeCard] = useState('designSystem');
 
-  switch(homeCard) {
-    case 'home':
-      return <HomeScreen setHomeCard={setHomeCard} />;
-    case 'transferTopUp':
-      return <TransferTopUpScreen setHomeCard={setHomeCard} />;
-    default:
-      return <HomeScreen setHomeCard={setHomeCard} />;
+  if (homeCard === 'designSystem') {
+    return (
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerClassName="grow items-center gap-3 px-4 py-4"
+      >
+        <View className="w-full max-w-screen-md">
+          <DesignSystem setHomeCard={(card: string) => setHomeCard(card)} />
+        </View>
+      </ScrollView>
+    );
+  } else if (homeCard === 'transferTopUp') {
+    return (
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerClassName="grow items-center gap-3 px-4 py-4"
+      >
+        <View className="w-full max-w-screen-md">
+          <TransferTopUpScreen
+            setHomeCard={(card: string) => setHomeCard(card)}
+          />
+        </View>
+      </ScrollView>
+    );
   }
-
 }
