@@ -5,13 +5,21 @@ export default function HomeLayout() {
     <Stack>
       <Stack.Screen
         name="index"
-        options={{ headerShown: false }}
+        options={{
+          title: 'Home',
+          headerShown: false,
+        }}
       />
       <Stack.Screen
-        name="transferTopUp"
+        name="transfer-top-up"
         options={{
           title: 'Transfer Top-up',
-          headerBackTitle: 'Home',
+        }}
+      />
+      <Stack.Screen
+        name="account"
+        options={{
+          title: 'Account',
         }}
       />
     </Stack>

@@ -24,13 +24,6 @@ export default function TransferTopUpScreen() {
             {currentBalance}
           </Text>
         </View>
-        <View className="h-11 w-11 items-center justify-center rounded-full border border-border bg-card shadow-sm">
-          <User
-            size={20}
-            className="text-foreground"
-            color="currentColor"
-          />
-        </View>
       </View>
 
       {/* 2. Główna karta formularza */}

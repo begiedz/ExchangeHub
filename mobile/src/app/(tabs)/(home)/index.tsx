@@ -9,14 +9,18 @@ import {
   ChevronDown,
   Info,
 } from 'lucide-react-native';
+import { useHslColor } from '@/hooks/use-hsl-color';
+import { Button } from '@/components/ui/button';
 
 export default function HomeScreen() {
   const router = useRouter();
   const [amount, setAmount] = useState('1,000.00');
   const [currentBalance, setCurrentBalance] = useState('£12,450.00');
 
+  const foreground = useHslColor('--foreground');
+
   return (
-    <ScrollView className="flex-1 bg-muted/20 px-4 pb-8 pt-12">
+    <ScrollView className="flex-1 bg-muted/20 px-4 pt-12">
       {/* 1. Górny pasek: Saldo i Awatar */}
       <View className="mb-6 flex-row items-center justify-between px-2">
         <View>
@@ -27,20 +31,22 @@ export default function HomeScreen() {
             {currentBalance}
           </Text>
         </View>
-        <View className="h-11 w-11 items-center justify-center rounded-full border border-border bg-card shadow-sm">
+        <Button
+          onPress={() => router.push('/(tabs)/(home)/account')}
+          className="h-11 w-11 items-center justify-center rounded-full border border-border bg-card shadow-sm"
+        >
           <User
             size={20}
-            className="text-foreground"
-            color="currentColor"
+            color={foreground}
           />
-        </View>
+        </Button>
       </View>
 
       {/* 2. Dwie karty u góry: Send Money oraz Receive */}
       <View className="mb-6 flex-row gap-3">
         {/* Send Money -> Przekierowanie do transferTopUp */}
         <Pressable
-          onPress={() => router.push('/(tabs)/(home)/transferTopUp')}
+          onPress={() => router.push('/(tabs)/(home)/transfer-top-up')}
           className="flex-1 rounded-3xl border border-border bg-card p-4 shadow-sm active:opacity-90"
         >
           <View className="mb-3 h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
@@ -97,7 +103,7 @@ export default function HomeScreen() {
               value={amount}
               onChangeText={setAmount}
               keyboardType="numeric"
-              className="flex-[2] rounded-2xl border border-border/60 bg-muted/40 px-4 py-3.5 text-base font-bold text-foreground"
+              className="flex-[2] rounded-2xl border border-border/60 bg-muted/40 px-4 py-3.5 font-bold text-foreground"
             />
             <Pressable className="flex-[1] flex-row items-center justify-between rounded-2xl border border-border/60 bg-muted/40 px-3">
               <Text className="text-sm font-bold text-foreground">GBP</Text>
@@ -115,8 +121,7 @@ export default function HomeScreen() {
           <View className="h-8 w-8 items-center justify-center rounded-full bg-muted/60">
             <ArrowDown
               size={16}
-              className="text-muted-foreground"
-              color="currentColor"
+              color={foreground}
             />
           </View>
         </View>
@@ -140,8 +145,7 @@ export default function HomeScreen() {
         <View className="flex-row items-center rounded-2xl bg-muted/50 p-3">
           <Info
             size={16}
-            className="mr-2.5 text-muted-foreground"
-            color="currentColor"
+            color={foreground}
           />
           <Text className="ml-2 flex-1 text-xs text-muted-foreground">
             1 GBP = 1.2405 USD • Fee included
