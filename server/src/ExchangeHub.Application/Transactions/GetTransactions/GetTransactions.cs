@@ -19,8 +19,12 @@ internal sealed class GetTransactionsHandler(ITransactionRepository transactions
         if (query.PageSize is < 1 or > MaxPageSize)
             return WalletErrors.Validation($"Page size must be between 1 and {MaxPageSize}.");
 
+        var skip = ((long)query.Page - 1) * query.PageSize;
+        if (skip > int.MaxValue)
+            return WalletErrors.Validation("Page is too large for the selected page size.");
+
         var (items, total) = await transactions.GetPage(
-            query.UserId, (query.Page - 1) * query.PageSize, query.PageSize, ct);
+            query.UserId, (int)skip, query.PageSize, ct);
 
         return new PagedResult<TransactionDto>(
             items.Select(TransactionDto.From).ToList(), query.Page, query.PageSize, total);
