@@ -17,8 +17,20 @@ internal sealed class FakeClock : IClock
 
 internal sealed class FakePasswordHasher : IPasswordHasher
 {
-    public string Hash(string password) => "hash:" + password;
-    public bool Verify(string password, string hash) => hash == "hash:" + password;
+    public int HashCalls { get; private set; }
+    public int VerifyCalls { get; private set; }
+
+    public string Hash(string password)
+    {
+        HashCalls++;
+        return "hash:" + password;
+    }
+
+    public bool Verify(string password, string hash)
+    {
+        VerifyCalls++;
+        return hash == "hash:" + password;
+    }
 }
 
 internal sealed class FakeTokenService : ITokenService

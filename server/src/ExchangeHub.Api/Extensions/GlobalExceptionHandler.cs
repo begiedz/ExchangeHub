@@ -23,7 +23,8 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
                 {
                     Status = bad.StatusCode,
                     Title = "Request.Malformed",
-                    Detail = "The request could not be parsed."
+                    Detail = "The request could not be parsed.",
+                    Extensions = { ["code"] = "Request.Malformed" }
                 }
             });
         }

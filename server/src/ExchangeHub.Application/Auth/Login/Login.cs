@@ -20,7 +20,9 @@ internal sealed class LoginHandler(
     public async Task<Result<AuthTokensDto>> Handle(LoginCommand command, CancellationToken ct)
     {
         var email = AuthInputRules.NormalizeEmail(command.Email);
-        if (email.Length == 0 || string.IsNullOrEmpty(command.Password)) return AuthErrors.InvalidCredentials;
+        if (AuthInputRules.ValidateEmail(email) is not null || string.IsNullOrEmpty(command.Password)
+            || command.Password.Length > AuthInputRules.MaxPasswordLength)
+            return AuthErrors.InvalidCredentials;
 
         var user = await users.GetByEmail(email, ct);
         var now = clock.UtcNow;
