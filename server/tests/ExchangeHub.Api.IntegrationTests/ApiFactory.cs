@@ -33,6 +33,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         {
             services.RemoveAll<IExchangeRateProvider>();
             services.AddSingleton<IExchangeRateProvider, FakeRates>();
+            services.RemoveAll<IHistoricalExchangeRateProvider>();
+            services.AddSingleton<IHistoricalExchangeRateProvider, FakeHistoricalRates>();
         });
     }
 
@@ -57,6 +59,22 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             Task.FromResult<Result<ExchangeRateTableDto>>(new ExchangeRateTableDto(
                 "1/C/NBP/2026", new DateOnly(2026, 1, 2), new DateOnly(2026, 1, 5),
                 [new ExchangeRateDto("euro", "EUR", 4.30m, 4.40m)]));
+    }
+
+    private sealed class FakeHistoricalRates : IHistoricalExchangeRateProvider
+    {
+        public Task<Result<ExchangeRateHistoryDto>> GetHistory(string currency, DateOnly from, DateOnly to, CancellationToken ct) =>
+            Task.FromResult<Result<ExchangeRateHistoryDto>>(currency switch
+            {
+                "EUR" => new ExchangeRateHistoryDto(currency,
+                    new HistoricalExchangeRateDto[]
+                    {
+                        new(new(2025, 1, 2), 4.22m, 4.31m),
+                        new(new(2025, 1, 3), 4.2410m, 4.3268m)
+                    }.Where(r => r.Date >= from && r.Date <= to).ToList()),
+                "USD" => RatesErrors.Unavailable,
+                _ => RatesErrors.UnsupportedCurrency
+            });
     }
 }
 

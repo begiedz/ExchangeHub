@@ -46,6 +46,7 @@ public static class DependencyInjection
             })
             .AddStandardResilienceHandler(); // timeouts, retries and circuit breaker for NBP outages
         services.AddSingleton<IExchangeRateProvider, NbpExchangeRateProvider>();
+        services.AddSingleton<IHistoricalExchangeRateProvider, NbpHistoricalExchangeRateProvider>();
 
         return services;
     }
