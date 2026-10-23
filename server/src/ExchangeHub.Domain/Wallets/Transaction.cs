@@ -29,6 +29,8 @@ public sealed class Transaction
     /// <summary>Exchange rate applied; null when no conversion took place (top-up).</summary>
     public decimal? ExchangeRate { get; private set; }
 
+    public DateOnly? NbpTableDate { get; private set; }
+
     public DateTime CreatedAtUtc { get; private set; }
 
     public static Transaction TopUp(Guid userId, decimal amount, DateTime nowUtc) => new()
@@ -41,5 +43,29 @@ public sealed class Transaction
         CreatedAtUtc = nowUtc
     };
 
-    // Purchase / Sale factories belong with the exchange logic: they need the rate policy and the funds check.
+    public static Transaction Purchase(Guid userId, string currency, decimal sourceAmount,
+        decimal targetAmount, decimal exchangeRate, DateOnly nbpTableDate, DateTime nowUtc)
+    {
+        if (string.IsNullOrWhiteSpace(currency) || currency.Length != 3 ||
+            !currency.All(char.IsAsciiLetter) || currency.Equals(Balance.BaseCurrency, StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("A foreign currency code is required.", nameof(currency));
+        if (sourceAmount <= 0) throw new ArgumentOutOfRangeException(nameof(sourceAmount));
+        if (targetAmount <= 0) throw new ArgumentOutOfRangeException(nameof(targetAmount));
+        if (exchangeRate <= 0) throw new ArgumentOutOfRangeException(nameof(exchangeRate));
+
+        return new Transaction
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            Type = TransactionType.Purchase,
+            SourceCurrency = Balance.BaseCurrency,
+            SourceAmount = sourceAmount,
+            TargetCurrency = currency.ToUpperInvariant(),
+            TargetAmount = targetAmount,
+            ExchangeRate = exchangeRate,
+            NbpTableDate = nbpTableDate,
+            // PostgreSQL timestamps retain microseconds. Return exactly the value history will read.
+            CreatedAtUtc = nowUtc.AddTicks(-(nowUtc.Ticks % TimeSpan.TicksPerMicrosecond))
+        };
+    }
 }

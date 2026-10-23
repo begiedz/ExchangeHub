@@ -36,9 +36,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         });
     }
 
-    public async Task<(HttpClient Client, string Email)> NewAuthenticatedUser()
+    public async Task<(HttpClient Client, string Email)> NewAuthenticatedUser(WebApplicationFactory<Program>? host = null)
     {
-        var client = CreateClient();
+        var client = (host ?? this).CreateClient();
         var email = $"user-{Guid.NewGuid():N}@example.com";
 
         await client.PostAsJsonAsync("/api/auth/register", new { email, password = "Passw0rd123" });
