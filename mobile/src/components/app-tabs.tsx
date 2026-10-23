@@ -1,8 +1,9 @@
 import { useHslColor } from '@/hooks/use-hsl-color';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
-import { Platform } from 'react-native';
+import { Platform, Pressable } from 'react-native';
 import { Home, ArrowLeftRight, History, DollarSign, Database } from 'lucide-react-native';
 import { size } from '@expo/ui/jetpack-compose/modifiers';
+import { useState } from 'react';
 
 export default function AppTabs() {
 const card = useHslColor('--card');
@@ -29,8 +30,9 @@ const card = useHslColor('--card');
         },
       }}
     >
-      <NativeTabs.Trigger name="index">
+      <NativeTabs.Trigger name="index" >      
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
+        
         <NativeTabs.Trigger.Icon
           src={require('@/assets/images/tabIcons/home.png')}
           renderingMode="template"
