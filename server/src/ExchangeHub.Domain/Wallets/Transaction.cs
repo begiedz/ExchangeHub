@@ -44,6 +44,14 @@ public sealed class Transaction
     };
 
     public static Transaction Purchase(Guid userId, string currency, decimal sourceAmount,
+        decimal targetAmount, decimal exchangeRate, DateOnly nbpTableDate, DateTime nowUtc) =>
+        CreateExchange(userId, TransactionType.Purchase, currency, sourceAmount, targetAmount, exchangeRate, nbpTableDate, nowUtc);
+
+    public static Transaction Sale(Guid userId, string currency, decimal sourceAmount,
+        decimal targetAmount, decimal exchangeRate, DateOnly nbpTableDate, DateTime nowUtc) =>
+        CreateExchange(userId, TransactionType.Sale, currency, sourceAmount, targetAmount, exchangeRate, nbpTableDate, nowUtc);
+
+    private static Transaction CreateExchange(Guid userId, TransactionType type, string currency, decimal sourceAmount,
         decimal targetAmount, decimal exchangeRate, DateOnly nbpTableDate, DateTime nowUtc)
     {
         if (string.IsNullOrWhiteSpace(currency) || currency.Length != 3 ||
@@ -57,10 +65,10 @@ public sealed class Transaction
         {
             Id = Guid.NewGuid(),
             UserId = userId,
-            Type = TransactionType.Purchase,
-            SourceCurrency = Balance.BaseCurrency,
+            Type = type,
+            SourceCurrency = type == TransactionType.Purchase ? Balance.BaseCurrency : currency.ToUpperInvariant(),
             SourceAmount = sourceAmount,
-            TargetCurrency = currency.ToUpperInvariant(),
+            TargetCurrency = type == TransactionType.Purchase ? currency.ToUpperInvariant() : Balance.BaseCurrency,
             TargetAmount = targetAmount,
             ExchangeRate = exchangeRate,
             NbpTableDate = nbpTableDate,
