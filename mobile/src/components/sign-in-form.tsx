@@ -27,7 +27,7 @@ export function SignInForm() {
 
   async function onSubmit() {
     console.log('Submitting with email:', email, 'and password:', password); // Log the email and
-        console.log(isSubmitting, "isSubmitting"); // Log the email and
+    console.log(isSubmitting, 'isSubmitting'); // Log the email and
 
     if (isSubmitting) return;
 
@@ -37,7 +37,7 @@ export function SignInForm() {
     try {
       await login({ email: email.trim(), password });
       signIn();
-      router.replace('/(tabs)');
+      router.replace('/(tabs)/(home)');
     } catch (error: unknown) {
       if (axios.isAxiosError<{ detail: string }>(error)) {
         setError(error.response?.data?.detail ?? error.message);
@@ -110,8 +110,8 @@ export function SignInForm() {
               </View>
             )}
           </View>
-          <Text className="text-center text-sm">
-            Don&apos;t have an account?{' '}
+          <View className="flex flex-row justify-center">
+            <Text className="text-sm">Don&apos;t have an account? </Text>
             <Pressable
               onPress={() => {
                 router.replace('/register');
@@ -121,7 +121,7 @@ export function SignInForm() {
                 Sign up
               </Text>
             </Pressable>
-          </Text>
+          </View>
         </CardContent>
       </Card>
     </View>
