@@ -24,6 +24,7 @@ public static class ResultExtensions
             ErrorType.Conflict => StatusCodes.Status409Conflict,
             ErrorType.TooManyRequests => StatusCodes.Status429TooManyRequests,
             ErrorType.ServiceUnavailable => StatusCodes.Status503ServiceUnavailable,
+            ErrorType.UnprocessableEntity => StatusCodes.Status422UnprocessableEntity,
             _ => StatusCodes.Status500InternalServerError
         };
 

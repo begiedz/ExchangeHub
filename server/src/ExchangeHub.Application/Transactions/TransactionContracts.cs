@@ -10,11 +10,12 @@ public sealed record TransactionDto(
     string TargetCurrency,
     decimal TargetAmount,
     decimal? ExchangeRate,
-    DateTime CreatedAtUtc)
+    DateTime CreatedAtUtc,
+    DateOnly? NbpTableDate = null)
 {
     public static TransactionDto From(Transaction t) => new(
         t.Id, t.Type.ToString(), t.SourceCurrency, t.SourceAmount,
-        t.TargetCurrency, t.TargetAmount, t.ExchangeRate, t.CreatedAtUtc);
+        t.TargetCurrency, t.TargetAmount, t.ExchangeRate, t.CreatedAtUtc, t.NbpTableDate);
 }
 
 public sealed record PagedResult<T>(IReadOnlyList<T> Items, int Page, int PageSize, int TotalCount);

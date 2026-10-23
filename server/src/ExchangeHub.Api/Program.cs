@@ -40,6 +40,7 @@ app.MapAuthEndpoints();
 app.MapRatesEndpoints();
 app.MapWalletEndpoints();
 app.MapTransactionEndpoints();
+app.MapExchangeEndpoints();
 
 app.Run();
 

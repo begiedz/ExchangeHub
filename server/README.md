@@ -82,8 +82,11 @@ dotnet run --project src/ExchangeHub.Api
 | GET | `/api/users/me` | yes | The current user. |
 | GET | `/api/wallet` | yes | Balances of the current user. |
 | POST | `/api/wallet/top-up` | yes | Simulated PLN top-up; also writes a history entry in the same database transaction. |
+| POST | `/api/exchange/buy` | yes | Buy foreign currency for PLN at the current NBP ask rate; returns the saved transaction (201). |
+| POST | `/api/exchange/sell` | yes | Sell foreign currency for PLN at the current NBP bid rate; returns the saved transaction (201). |
 | GET | `/api/transactions` | yes | History of the current user, newest first. `?page=1&pageSize=20` (max 100). |
 | GET | `/api/rates/current` | yes | NBP table C exactly as published. |
+| GET | `/api/rates/{code}/history` | yes | Historical NBP table C bid/ask rates. Required `?from=YYYY-MM-DD&to=YYYY-MM-DD` (inclusive); days without publications are omitted. |
 | GET | `/health` | no | Liveness including the database. |
 
 Authenticated endpoints expect `Authorization: Bearer <accessToken>`.

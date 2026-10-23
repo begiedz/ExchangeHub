@@ -24,4 +24,11 @@ public sealed class Balance
         if (amount <= 0) throw new ArgumentOutOfRangeException(nameof(amount), "Credit must be positive.");
         Amount += amount;
     }
+
+    public void Debit(decimal amount)
+    {
+        if (amount <= 0) throw new ArgumentOutOfRangeException(nameof(amount), "Debit must be positive.");
+        if (amount > Amount) throw new InvalidOperationException("Insufficient funds.");
+        Amount -= amount;
+    }
 }

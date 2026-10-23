@@ -138,6 +138,9 @@ namespace ExchangeHub.Infrastructure.Persistence.Migrations
                         .HasPrecision(18, 8)
                         .HasColumnType("numeric(18,8)");
 
+                    b.Property<DateOnly?>("NbpTableDate")
+                        .HasColumnType("date");
+
                     b.Property<decimal?>("SourceAmount")
                         .HasPrecision(18, 4)
                         .HasColumnType("numeric(18,4)");
