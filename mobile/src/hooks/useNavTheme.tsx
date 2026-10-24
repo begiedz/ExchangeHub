@@ -4,7 +4,7 @@ import {
   DefaultTheme,
   type Theme,
 } from 'expo-router/react-navigation';
-import { useHslColor } from '@/hooks/use-hsl-color';
+import { useHslColor } from '@/hooks/useHslColor';
 
 export function useNavTheme(): Theme {
   const { colorScheme } = useColorScheme();

@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 import { Platform, StatusBar as NativeStatusBar } from 'react-native';
 
 import { useAuthStore } from '@/stores/auth-store';
-import { useNavTheme } from '@/hooks/use-nav-theme';
+import { useNavTheme } from '@/hooks/useNavTheme';
 
 export default function RootLayout() {
   const isLoggedIn = useAuthStore(state => state.isLoggedIn);

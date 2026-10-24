@@ -9,7 +9,7 @@ import {
   ChevronDown,
   Info,
 } from 'lucide-react-native';
-import { useHslColor } from '@/hooks/use-hsl-color';
+import { useHslColor } from '@/hooks/useHslColor';
 import { Button } from '@/components/ui/button';
 
 export default function HomeScreen() {
