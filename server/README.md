@@ -25,12 +25,16 @@ Handlers are registered automatically from their handler interfaces (`ICommandHa
 
 ## Running the database and the API
 
-Requires Docker.
+Requires Docker. Secrets are not stored in the repository, so create your own `.env` first:
 
 ```bash
 cd server
+cp .env.example .env     # then edit .env: set POSTGRES_PASSWORD and a real JWT_SIGNING_KEY
 docker compose up -d --build
 ```
+
+`docker compose` stops with a clear message when a required value is missing, and the API refuses to start with the
+placeholder key from `.env.example`.
 
 | What | Where |
 |---|---|
@@ -38,23 +42,26 @@ docker compose up -d --build
 | Swagger UI | http://localhost:8080/swagger |
 | OpenAPI document | http://localhost:8080/openapi/v1.json |
 | Health check | http://localhost:8080/health |
-| PostgreSQL (from the host) | `localhost:5433`, database/user/password `exchangehub` |
+| PostgreSQL (from the host) | `localhost:5433`, database and user `exchangehub`, password from `.env` |
 
-Port 5433 is used on the host so it does not clash with a local PostgreSQL on 5432.
+Port 5433 is used on the host so it does not clash with a local PostgreSQL on 5432; `DB_PORT` and `API_PORT` in
+`.env` change the host ports. The database password is fixed when the volume is first created, so after changing
+`POSTGRES_PASSWORD` run `docker compose down -v`.
 In the `Development` environment the API applies EF Core migrations on startup.
 
 Stop everything with `docker compose down`; add `-v` to also delete the database volume.
 
 ### Running the API without Docker for the API
 
-Start only the database, then run the API from your IDE or CLI:
+Start only the database, give the API its secrets through .NET user-secrets (stored outside the repository), then run it:
 
 ```bash
 docker compose up -d db
-dotnet run --project src/ExchangeHub.Api
+cd src/ExchangeHub.Api
+dotnet user-secrets set "ConnectionStrings:Database" "Host=localhost;Port=5433;Database=exchangehub;Username=exchangehub;Password=<POSTGRES_PASSWORD from .env>"
+dotnet user-secrets set "Auth:Jwt:SigningKey" "<the same JWT_SIGNING_KEY>"
+dotnet run
 ```
-
-`appsettings.Development.json` already points at `localhost:5433`.
 
 ## Configuration
 
@@ -66,9 +73,15 @@ dotnet run --project src/ExchangeHub.Api
 | `Auth:LoginProtection:MaxFailedAttempts` / `LockoutDuration` | Account lockout (5 attempts / 15 minutes). |
 | `Nbp:BaseUrl` / `Nbp:CacheDuration` | NBP API address and cache time (15 minutes). |
 
-> The values in `docker-compose.yml` and `appsettings.Development.json` (database password, JWT signing key) are
-> **local development only**. Use environment variables (`Auth__Jwt__SigningKey`, `ConnectionStrings__Database`)
-> anywhere else.
+Secrets (`ConnectionStrings:Database`, `Auth:Jwt:SigningKey`) are never committed. They come from:
+
+| Where | How |
+|---|---|
+| Docker Compose | `server/.env` (git-ignored; template in `.env.example`) |
+| `dotnet run` locally | .NET user-secrets |
+| Any other environment | Environment variables, e.g. `Auth__Jwt__SigningKey`, `ConnectionStrings__Database` |
+
+Integration tests need no setup: they start their own database and sign tokens with a random key per run.
 
 ## Endpoints
 

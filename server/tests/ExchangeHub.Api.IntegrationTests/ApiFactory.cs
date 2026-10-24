@@ -27,6 +27,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
         builder.UseEnvironment("Development");
         builder.UseSetting("ConnectionStrings:Database", _db.GetConnectionString());
+        // Secrets are not in any appsettings file, so each run signs tokens with its own random key.
+        builder.UseSetting("Auth:Jwt:SigningKey",
+            Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(48)));
 
         // NBP is an external service: tests must not depend on it being up.
         builder.ConfigureServices(services =>
