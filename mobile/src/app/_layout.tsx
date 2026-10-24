@@ -10,6 +10,7 @@ import { Platform, StatusBar as NativeStatusBar } from 'react-native';
 
 import { useAuthStore } from '@/stores/auth-store';
 import { useNavTheme } from '@/hooks/useNavTheme';
+import { logger } from '@/lib/logger';
 
 export default function RootLayout() {
   const isLoggedIn = useAuthStore(state => state.isLoggedIn);
@@ -25,7 +26,7 @@ export default function RootLayout() {
         NativeStatusBar.setBackgroundColor(theme.colors.background);
       }
       SystemUI.setBackgroundColorAsync(androidWindowColor).catch(error => {
-        console.warn('Failed to update the Android window background', error);
+        logger.warn('Failed to update the Android window background', error);
       });
     }
   }, [androidWindowColor, theme.colors.background]);
