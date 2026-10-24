@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
+import { useEffect, useState } from 'react';
+import { View, TextInput, Pressable, ScrollView } from 'react-native';
+import { Text } from '@/components/ui/text';
 import { useRouter } from 'expo-router';
 import {
   User,
@@ -12,13 +13,31 @@ import {
 import { useHslColor } from '@/hooks/useHslColor';
 import { Button } from '@/components/ui/button';
 import { logger } from '@/lib/logger';
+import getWallet from '@/api/wallet';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const [amount, setAmount] = useState('1,000.00');
-  const [currentBalance, setCurrentBalance] = useState('£12,450.00');
+  const [amount, setAmount] = useState<string>('1000');
+  const [currentBalance, setCurrentBalance] = useState<number | null>(null);
+  const [currencyCode, setCurrencyCode] = useState<string | null>(null);
 
   const foreground = useHslColor('--foreground');
+
+  useEffect(() => {
+    async function fetchWallet() {
+      const walletBalance = await getWallet();
+
+      const plnBalance = walletBalance.balances.find(
+        balance => balance.currencyCode === 'PLN',
+      );
+
+      if (plnBalance) {
+        setCurrentBalance(plnBalance.amount);
+        setCurrencyCode(plnBalance.currencyCode);
+      }
+    }
+    fetchWallet();
+  });
 
   return (
     <ScrollView className="flex-1 bg-muted/20 px-4 pt-12">
@@ -28,9 +47,11 @@ export default function HomeScreen() {
           <Text className="text-xs font-medium text-muted-foreground">
             Current Balance
           </Text>
-          <Text className="text-2xl font-bold text-foreground">
-            {currentBalance}
-          </Text>
+          <View className="flex flex-row">
+            <Text className="text-2xl font-bold">{currentBalance}</Text>
+            <Text className="text-2xl"> </Text>
+            <Text className="text-2xl font-bold">{currencyCode}</Text>
+          </View>
         </View>
         <Button
           onPress={() => router.push('/(tabs)/(home)/account')}
@@ -103,7 +124,7 @@ export default function HomeScreen() {
             <TextInput
               value={amount}
               onChangeText={setAmount}
-              keyboardType="numeric"
+              keyboardType="decimal-pad"
               className="flex-[2] rounded-2xl border border-border/60 bg-muted/40 px-4 py-3.5 font-bold text-foreground"
             />
             <Pressable className="flex-[1] flex-row items-center justify-between rounded-2xl border border-border/60 bg-muted/40 px-3">

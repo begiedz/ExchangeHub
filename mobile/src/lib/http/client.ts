@@ -1,6 +1,7 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios';
 
 import { tokenStorage } from '@/lib/storage/token-storage';
+import { logger } from '../logger';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -26,6 +27,12 @@ httpClient.interceptors.request.use(async config => {
   }
 
   return config;
+});
+
+httpClient.interceptors.response.use(async response => {
+  logger.log('Server response:', response.data);
+
+  return response;
 });
 
 let refreshPromise: Promise<string> | null = null;
