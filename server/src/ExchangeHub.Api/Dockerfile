@@ -13,6 +13,9 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["src/ExchangeHub.Api/ExchangeHub.Api.csproj", "src/ExchangeHub.Api/"]
+COPY ["src/ExchangeHub.Application/ExchangeHub.Application.csproj", "src/ExchangeHub.Application/"]
+COPY ["src/ExchangeHub.Infrastructure/ExchangeHub.Infrastructure.csproj", "src/ExchangeHub.Infrastructure/"]
+COPY ["src/ExchangeHub.Domain/ExchangeHub.Domain.csproj", "src/ExchangeHub.Domain/"]
 RUN dotnet restore "./src/ExchangeHub.Api/ExchangeHub.Api.csproj"
 COPY . .
 WORKDIR "/src/src/ExchangeHub.Api"
