@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { User, Info, ChevronDown } from 'lucide-react-native';
+import { logger } from '@/lib/logger';
 
 export default function TransferTopUpScreen() {
   const [currentBalance, setCurrentBalance] = useState('£12,450.00');
@@ -33,7 +34,7 @@ export default function TransferTopUpScreen() {
           <Text className="text-lg font-bold text-foreground">
             Transfer Top-up
           </Text>
-          <Pressable onPress={() => console.log('Transfer clicked')}>
+          <Pressable onPress={() => logger.log('Transfer clicked')}>
             <Text className="text-sm font-semibold text-primary">Transfer</Text>
           </Pressable>
         </View>
@@ -106,7 +107,7 @@ export default function TransferTopUpScreen() {
             <Pressable
               onPress={() => {
                 // Tutaj otwórzesz np. Modal lub listę z walutami pobranymi z API NBP
-                console.log('Otwórz wybór walut z NBP');
+                logger.log('Otwórz wybór walut z NBP');
               }}
               className="h-[52px] w-full flex-row items-center justify-between rounded-2xl border border-border/60 bg-muted/40 px-3"
             >

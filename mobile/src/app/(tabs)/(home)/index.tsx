@@ -11,6 +11,7 @@ import {
 } from 'lucide-react-native';
 import { useHslColor } from '@/hooks/useHslColor';
 import { Button } from '@/components/ui/button';
+import { logger } from '@/lib/logger';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -66,7 +67,7 @@ export default function HomeScreen() {
 
         {/* Receive */}
         <Pressable
-          onPress={() => console.log('Receive clicked')}
+          onPress={() => logger.log('Receive clicked')}
           className="flex-1 rounded-3xl border border-border bg-card p-4 shadow-sm active:opacity-90"
         >
           <View className="mb-3 h-10 w-10 items-center justify-center rounded-full bg-blue-100">

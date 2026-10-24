@@ -10,6 +10,7 @@ import { login, register } from '@/api/auth';
 import axios from 'axios';
 import { useAuthStore } from '@/stores/auth-store';
 import { focusInput } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 
 export function SignUpForm() {
   const [email, setEmail] = useState<string>('');
@@ -52,7 +53,7 @@ export function SignUpForm() {
     } catch (error: unknown) {
       if (axios.isAxiosError<{ detail: string }>(error)) {
         setError(error.response?.data?.detail ?? 'Something went wrong.');
-        console.log(error);
+        logger.error(error);
       } else {
         setError('An unexpected error occurred.');
       }

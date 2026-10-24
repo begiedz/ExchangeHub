@@ -10,6 +10,7 @@ import { login } from '@/api/auth';
 import { useAuthStore } from '@/stores/auth-store';
 import axios from 'axios';
 import { focusInput } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 
 export function SignInForm() {
   const [email, setEmail] = useState<string>('');
@@ -23,16 +24,18 @@ export function SignInForm() {
   const passwordRef = useRef<TextInput>(null);
 
   async function onSubmit() {
-    console.log('Submitting with email:', email, 'and password:', password); // Log the email and
-    console.log(isSubmitting, 'isSubmitting'); // Log the email and
-
     if (isSubmitting) return;
+
+    const trimmedEmail = email.trim();
 
     setError(null);
     setIsSubmitting(true);
 
+    logger.log('Logging with credentials:');
+    logger.log(`email: "${trimmedEmail}", password: "${password}"`);
+
     try {
-      await login({ email: email.trim(), password });
+      await login({ email: trimmedEmail, password });
       signIn();
       router.replace('/(tabs)/(home)');
     } catch (error: unknown) {
