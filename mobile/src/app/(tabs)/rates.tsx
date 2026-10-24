@@ -12,7 +12,7 @@ export default function RatesScreen() {
       setRates(currentRates);
     }
     fetchRates();
-  });
+  }, []);
   return (
     <View className="flex-1 items-center justify-center">
       <Text>{JSON.stringify(rates)}</Text>
