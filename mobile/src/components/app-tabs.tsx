@@ -1,6 +1,6 @@
-import { useHslColor } from '@/hooks/use-hsl-color';
+import { useHslColor } from '@/hooks/useHslColor';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
-import { Platform, Pressable } from 'react-native';
+import { Platform } from 'react-native';
 
 export default function AppTabs() {
   const card = useHslColor('--card');

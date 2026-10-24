@@ -8,7 +8,7 @@ import {
   Keyboard,
   ScrollView,
 } from 'react-native';
-import { SignUpForm } from '@/components/sign-up-form';
+import { SignUpForm } from '@/components/auth/sign-up-form';
 
 export default function RegisterScreen() {
   return (
