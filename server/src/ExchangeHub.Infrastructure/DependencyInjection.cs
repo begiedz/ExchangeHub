@@ -33,6 +33,10 @@ public static class DependencyInjection
         services.AddOptions<JwtOptions>()
             .Bind(configuration.GetSection(JwtOptions.SectionName))
             .ValidateDataAnnotations()
+            // Copying .env.example without editing it must not produce a working (and publicly known) key.
+            .Validate(o => string.IsNullOrEmpty(o.SigningKey)
+                           || !o.SigningKey.Contains("change-me", StringComparison.OrdinalIgnoreCase),
+                "Auth:Jwt:SigningKey is still a placeholder. Generate a real key (see server/.env.example).")
             .ValidateOnStart();
 
         services.AddOptions<LoginProtectionOptions>()
