@@ -1,7 +1,7 @@
-import getRates from '@/api/rates';
-import { Text } from '@/components/ui/text';
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { Screen } from '@/components/layout/screen';
+import { Text } from '@/components/ui/text';
+import getRates from '@/api/rates';
 
 export default function RatesScreen() {
   const [rates, setRates] = useState<Object>({});
@@ -14,8 +14,8 @@ export default function RatesScreen() {
     fetchRates();
   }, []);
   return (
-    <View className="flex-1 items-center justify-center">
+    <Screen scrollable>
       <Text>{JSON.stringify(rates)}</Text>
-    </View>
+    </Screen>
   );
 }

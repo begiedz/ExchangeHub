@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Screen } from '@/components/layout/screen';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -52,7 +53,7 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <ScrollView className="flex-1 bg-muted/20 px-4 pt-12">
+    <Screen scrollable>
       {/* 1. Górny pasek: Saldo i Awatar */}
       <View className="mb-6 flex-row items-center justify-between px-2">
         <View>
@@ -251,6 +252,6 @@ export default function HomeScreen() {
           </CardContent>
         </Card>
       </View>
-    </ScrollView>
+    </Screen>
   );
 }

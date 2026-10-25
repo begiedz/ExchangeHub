@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
-import { User, Info, ChevronDown } from 'lucide-react-native';
+import { View, Text, TextInput, Pressable } from 'react-native';
+import { Screen } from '@/components/layout/screen';
+import { Info, ChevronDown } from 'lucide-react-native';
 import { logger } from '@/lib/logger';
 
 export default function TransferTopUpScreen() {
@@ -14,7 +15,7 @@ export default function TransferTopUpScreen() {
   const [selectedCurrency, setSelectedCurrency] = useState('GBP');
 
   return (
-    <ScrollView className="flex-1 bg-muted/20 px-4 pt-12">
+    <Screen scrollable>
       {/* 1. Górny pasek: Saldo i awatar użytkownika */}
       <View className="mb-6 flex-row items-center justify-between px-2">
         <View>
@@ -135,6 +136,6 @@ export default function TransferTopUpScreen() {
           </Text>
         </View>
       </View>
-    </ScrollView>
+    </Screen>
   );
 }

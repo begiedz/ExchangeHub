@@ -1,9 +1,9 @@
-import { View } from 'react-native';
+import { Screen } from '@/components/layout/screen';
 import { Text } from '@/components/ui/text';
 export default function Account() {
   return (
-    <View>
+    <Screen>
       <Text>Account</Text>
-    </View>
+    </Screen>
   );
 }
