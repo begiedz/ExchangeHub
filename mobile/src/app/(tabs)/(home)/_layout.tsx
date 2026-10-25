@@ -10,18 +10,6 @@ export default function HomeLayout() {
           headerShown: false,
         }}
       />
-      <Stack.Screen
-        name="transfer-top-up"
-        options={{
-          title: 'Transfer Top-up',
-        }}
-      />
-      <Stack.Screen
-        name="account"
-        options={{
-          title: 'Account',
-        }}
-      />
     </Stack>
   );
 }

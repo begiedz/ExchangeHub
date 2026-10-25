@@ -12,6 +12,10 @@ import { useAuthStore } from '@/stores/auth-store';
 import { useNavTheme } from '@/hooks/useNavTheme';
 import { logger } from '@/lib/logger';
 
+export const unstable_settings = {
+  anchor: '(tabs)',
+};
+
 export default function RootLayout() {
   const isLoggedIn = useAuthStore(state => state.isLoggedIn);
   const theme = useNavTheme();
@@ -21,6 +25,7 @@ export default function RootLayout() {
     : theme.colors.background;
 
   useEffect(() => {
+    // Explicitly set status bar color on older Android API (pre 15)
     if (Platform.OS === 'android') {
       if (Platform.Version < 35) {
         NativeStatusBar.setBackgroundColor(theme.colors.background);
@@ -57,6 +62,22 @@ export default function RootLayout() {
 
         <Stack.Protected guard={isLoggedIn}>
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen
+            name="account"
+            options={{
+              headerShown: true,
+              title: 'Account',
+              headerBackTitle: 'Home',
+            }}
+          />
+          <Stack.Screen
+            name="transfer-top-up"
+            options={{
+              headerShown: true,
+              title: 'Transfer Top-up',
+              headerBackTitle: 'Home',
+            }}
+          />
         </Stack.Protected>
       </Stack>
 
