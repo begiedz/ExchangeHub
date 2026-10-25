@@ -67,7 +67,7 @@ export default function HomeScreen() {
           </View>
         </View>
         <Button
-          onPress={() => router.push('/(tabs)/(home)/account')}
+          onPress={() => router.push('/account')}
           className="h-11 w-11 items-center justify-center rounded-full border border-border bg-card shadow-sm"
         >
           <User
@@ -81,7 +81,7 @@ export default function HomeScreen() {
       <View className="mb-6 flex-row gap-3">
         {/* Send Money -> Przekierowanie do transferTopUp */}
         <Pressable
-          onPress={() => router.push('/(tabs)/(home)/transfer-top-up')}
+          onPress={() => router.push('/transfer-top-up')}
           className="active:opacity-60"
         >
           <Card>
