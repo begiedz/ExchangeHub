@@ -9,7 +9,7 @@ import getRates from '@/api/rates';
 interface RateItem {
   currency: string;
   code: string;
-  mid: number;
+  bid: number;
 }
 
 interface NbpTableResponse {
