@@ -45,94 +45,109 @@ export default function TransferTopUpScreen() {
 
       {/* 2. Główna karta formularza */}
       <Card>
+        {/* Nagłówek karty */}
         <CardHeader className="flex-row items-center justify-between">
-          {/* Nagłówek karty z przyciskiem Swap */}
-          <Text className="text-lg font-bold">Exchange</Text>
-          <Pressable onPress={() => router.push('/(tabs)/exchange')}>
-            <Text className="text-sm font-semibold text-primary">Swap</Text>
+          <Text className="text-lg font-bold text-foreground">
+            Transfer Top-up
+          </Text>
+          <Pressable onPress={() => console.log('Transfer clicked')}>
+            <Text className="text-sm font-semibold text-primary">Transfer</Text>
           </Pressable>
         </CardHeader>
         <CardContent>
-          {/* Sekcja: You send */}
-          <View className="mb-2">
-            <Text className="mb-1.5 text-xs font-medium text-muted-foreground">
-              You send
-            </Text>
-            <View className="flex-row gap-3">
-              <Input
-                value={amount}
-                onChangeText={setAmount}
-                keyboardType="decimal-pad"
-                className="flex-1"
-              />
-              <Select
-                defaultValue={{ label: 'GBP', value: 'GBP' }}
-                className="w-62"
-              >
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder="Select currency"
-                    className="font-bold"
-                  />
-                </SelectTrigger>
-                <SelectContent
-                  insets={{ right: 20 }}
-                  className="mt-2 rounded-3xl"
-                >
-                  <SelectGroup>
-                    <SelectLabel>Currencies</SelectLabel>
-                    <SelectItem
-                      label="GBP"
-                      value="GBP"
-                    >
-                      GBP
-                    </SelectItem>
-                    <SelectItem
-                      label="USD"
-                      value="USD"
-                    >
-                      USD
-                    </SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </View>
-          </View>
-
-          {/* Ikona strzałki w dół pomiędzy sekcjami */}
-          <View className="my-2 items-center">
-            <View className="h-8 w-8 items-center justify-center rounded-full bg-muted/60">
-              <ArrowDown
-                size={16}
-                color={foreground}
-              />
-            </View>
-          </View>
-
-          {/* Sekcja: You receive */}
+          {/* Pole: Name */}
           <View className="mb-4">
             <Text className="mb-1.5 text-xs font-medium text-muted-foreground">
-              You receive
+              Name:
             </Text>
-            {/* Hacked explicit classes to look like input */}
-            <View className="w-full min-w-0 rounded-md border border-input bg-background px-3 py-3 text-base leading-5 text-foreground shadow-sm shadow-black/5 dark:bg-input/30 sm:h-9">
-              <Text className="text-xl font-bold text-foreground">
-                1,240.50 USD
+            <TextInput
+              value={name}
+              onChangeText={setName}
+              placeholder="Name Surname"
+              placeholderTextColor="#9ca3af"
+              className="w-full rounded-2xl border border-border/60 bg-muted/40 px-4 py-3.5 text-sm text-foreground"
+              autoCapitalize="words"
+            />
+          </View>
+
+          {/* Pole: IBAN */}
+          <View className="mb-4">
+            <Text className="mb-1.5 text-xs font-medium text-muted-foreground">
+              IBAN:
+            </Text>
+            <TextInput
+              value={iban}
+              onChangeText={setIban}
+              placeholder="PL12 1010 0000 0000 1234 5678 9012"
+              placeholderTextColor="#9ca3af"
+              className="w-full rounded-2xl border border-border/60 bg-muted/40 px-4 py-3.5 text-sm text-foreground"
+            />
+          </View>
+
+          {/* Pole: Transfer Title */}
+          <View className="mb-4">
+            <Text className="mb-1.5 text-xs font-medium text-muted-foreground">
+              Transfer Title:
+            </Text>
+            <TextInput
+              value={title}
+              onChangeText={setTitle}
+              placeholder="Sample transfer title"
+              placeholderTextColor="#9ca3af"
+              className="w-full rounded-2xl border border-border/60 bg-muted/40 px-4 py-3.5 text-sm text-foreground"
+            />
+          </View>
+
+          {/* Sekcja rozdzielona na dwa pola (Kwota + Waluta z NBP) */}
+          <View className="mb-4 flex-row gap-3">
+            {/* 1. Input: You send (Kwota) - zajmuje większą część (np. flex-2) */}
+            <View className="flex-[2]">
+              <Text className="mb-1.5 text-xs font-medium text-muted-foreground">
+                You send
               </Text>
-              <Text className="mt-0.5 text-xs text-muted-foreground">
-                United States Dollar
+              <TextInput
+                value={amount}
+                onChangeText={setAmount}
+                keyboardType="numeric"
+                placeholder="0.00"
+                placeholderTextColor="#9ca3af"
+                className="w-full rounded-2xl border border-border/60 bg-muted/40 px-4 py-3.5 text-base font-bold text-foreground"
+              />
+            </View>
+
+            {/* 2. Wybór waluty (Currency Dropdown / Picker) - mniejsza część (flex-1) */}
+            <View className="flex-[1]">
+              <Text className="mb-1.5 text-xs font-medium text-muted-foreground">
+                Currency
               </Text>
+              <Pressable
+                onPress={() => {
+                  // Tutaj otwórzesz np. Modal lub listę z walutami pobranymi z API NBP
+                  console.log('Otwórz wybór walut z NBP');
+                }}
+                className="h-[52px] w-full flex-row items-center justify-between rounded-2xl border border-border/60 bg-muted/40 px-3"
+              >
+                <Text className="text-sm font-bold text-foreground">
+                  {selectedCurrency}
+                </Text>
+                <ChevronDown
+                  size={16}
+                  className="text-muted-foreground"
+                  color="currentColor"
+                />
+              </Pressable>
             </View>
           </View>
 
-          {/* Informacja o kursie */}
-          <View className="w-full min-w-0 flex-row items-center rounded-md border border-input bg-background px-3 py-3 text-base leading-5 text-foreground shadow-sm shadow-black/5 dark:bg-input/30 sm:h-9">
+          {/* Informacja / Baner na dole karty */}
+          <View className="mt-2 flex-row items-center rounded-2xl bg-muted/50 p-3.5">
             <Info
-              size={16}
-              color={foreground}
+              size={18}
+              className="mr-2.5 text-muted-foreground"
+              color="currentColor"
             />
-            <Text className="ml-2 flex-1 text-xs text-muted-foreground">
-              1 GBP = 1.2405 USD • Fee included
+            <Text className="ml-2 flex-1 text-xs leading-relaxed text-muted-foreground">
+              Enjoy fee-free-top-ups when using virtual account transfers.
             </Text>
           </View>
         </CardContent>
