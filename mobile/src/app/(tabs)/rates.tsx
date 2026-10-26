@@ -4,6 +4,8 @@ import { Screen } from '@/components/layout/screen';
 import { Text } from '@/components/ui/text';
 import { User, Search } from 'lucide-react-native';
 import getRates from '@/api/rates';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 
 // Definicja typów dla danych z NBP
 interface RateItem {
@@ -22,7 +24,7 @@ interface NbpTableResponse {
 export default function RatesScreen() {
   const [ratesData, setRatesData] = useState<NbpTableResponse | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentBalance, setCurrentBalance] = useState<number>(12450.00);
+  const [currentBalance, setCurrentBalance] = useState('£12,450.00');
 
   useEffect(() => {
     async function fetchRates() {
@@ -47,16 +49,17 @@ export default function RatesScreen() {
   }, [ratesData, searchQuery]);
 
   return (
-    <Screen scrollable className="bg-background px-4 pt-4">
+    <Screen scrollable>
       
       {/* 1. Górny pasek: Saldo i Awatar */}
-      <View className="flex-row justify-between items-center mb-6 px-1">
+      <View className="mb-6 flex-row items-center justify-between px-2">
         <View>
-          <Text className="text-xs text-muted-foreground font-medium">Current Balance</Text>
-          <Text className="text-2xl font-bold text-foreground">£{currentBalance.toFixed(2)}</Text>
-        </View>
-        <View className="w-11 h-11 rounded-full bg-card border border-border items-center justify-center shadow-sm">
-          <User size={20} className="text-foreground" />
+          <Text className="text-xs font-medium text-muted-foreground">
+            Current Balance
+          </Text>
+          <Text className="text-2xl font-bold text-foreground">
+            {currentBalance}
+          </Text>
         </View>
       </View>
 
@@ -74,12 +77,12 @@ export default function RatesScreen() {
       {/* 3. Wyszukiwarka */}
       <View className="flex-row items-center bg-card border border-border rounded-2xl px-4 py-3 mb-4 shadow-sm">
         <Search size={18} className="text-muted-foreground mr-2.5" />
-        <TextInput
+        <Input
           placeholder=" Search"
           placeholderTextColor="#94a3b8"
           value={searchQuery}
           onChangeText={setSearchQuery}
-          className="flex-1 text-foreground text-sm p-0 m-0"
+          className="flex-1 text-foreground text-sm p-0 m-0 ml-2.5"
         />
       </View>
 
@@ -106,7 +109,6 @@ export default function RatesScreen() {
 
 
       </View>
-
     </Screen>
   );
 }
