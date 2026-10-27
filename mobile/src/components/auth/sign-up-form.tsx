@@ -81,7 +81,6 @@ export function SignUpForm() {
                 onChangeText={text => setEmail(text)}
                 returnKeyType="next"
                 submitBehavior="submit"
-                className="focus:border-primary"
               />
             </View>
             <View className="gap-1.5">

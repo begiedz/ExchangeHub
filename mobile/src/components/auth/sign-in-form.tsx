@@ -95,7 +95,6 @@ export function SignInForm() {
                 returnKeyType="send"
                 onSubmitEditing={onSubmit}
                 onChangeText={text => setPassword(text)}
-                className="focus:border-primary"
               />
             </View>
             <Button
