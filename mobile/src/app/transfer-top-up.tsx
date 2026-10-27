@@ -1,21 +1,9 @@
-import { useState } from 'react';
-import { View, Text, TextInput, Pressable } from 'react-native';
 import { Screen } from '@/components/layout/screen';
-import { Info, ChevronDown, ArrowDown } from 'lucide-react-native';
-import { logger } from '@/lib/logger';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { router } from 'expo-router';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useHslColor } from '@/hooks/useHslColor';
+import { useHslColor } from '@/hooks/use-hsl-color';
+import { ChevronDown, Info } from 'lucide-react-native';
+import { useState } from 'react';
+import { Pressable, Text, TextInput, View } from 'react-native';
 
 export default function TransferTopUpScreen() {
   const [currentBalance, setCurrentBalance] = useState('£12,450.00');

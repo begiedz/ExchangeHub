@@ -2,6 +2,7 @@ import { httpClient } from '@/lib/http/client';
 import {
   GetApiRatesByCodeHistoryData,
   GetApiRatesByCodeHistoryResponse,
+  GetApiRatesCurrentResponse,
 } from '@/types/generated';
 
 type RateHistoryParams = {
@@ -10,7 +11,8 @@ type RateHistoryParams = {
 };
 
 export async function getCurrentRates() {
-  const { data } = await httpClient.get('/rates/current');
+  const { data } =
+    await httpClient.get<GetApiRatesCurrentResponse>('/rates/current');
 
   return data;
 }
