@@ -2,26 +2,15 @@ import { getCurrentRates } from '@/api/rates';
 import { Screen } from '@/components/layout/screen';
 import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
+import { GetApiRatesCurrentResponse } from '@/types/generated';
 import { Search } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 
-// Definicja typów dla danych z NBP
-interface RateItem {
-  currency: string;
-  code: string;
-  bid: number;
-}
-
-interface NbpTableResponse {
-  table: string;
-  no: string;
-  effectiveDate: string;
-  rates: RateItem[];
-}
-
 export default function RatesScreen() {
-  const [ratesData, setRatesData] = useState<NbpTableResponse | null>(null);
+  const [ratesData, setRatesData] = useState<GetApiRatesCurrentResponse | null>(
+    null,
+  );
   const [searchQuery, setSearchQuery] = useState('');
   const [currentBalance, setCurrentBalance] = useState('£12,450.00');
 
