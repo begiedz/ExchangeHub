@@ -1,20 +1,24 @@
+import { login } from '@/api/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
-import { Pressable, type TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
-import { login } from '@/api/auth';
+import { focusInput } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 import axios from 'axios';
-import { focusInput } from '@/lib/utils';
-import { logger } from '@/lib/logger';
+import { useRouter } from 'expo-router';
+import { useRef, useState } from 'react';
+import { Pressable, type TextInput, View } from 'react-native';
 
 export function SignInForm() {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [email, setEmail] = useState<string>(
+    __DEV__ ? (process.env.EXPO_PUBLIC_DEV_EMAIL ?? '') : '',
+  );
+
+  const [password, setPassword] = useState<string>(
+    __DEV__ ? (process.env.EXPO_PUBLIC_DEV_PASSWORD ?? '') : '',
+  );
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -30,9 +34,6 @@ export function SignInForm() {
 
     setError(null);
     setIsSubmitting(true);
-
-    logger.log('Logging with credentials:');
-    logger.log(`email: "${trimmedEmail}", password: "${password}"`);
 
     try {
       await login({ email: trimmedEmail, password });

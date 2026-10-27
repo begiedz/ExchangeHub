@@ -2,31 +2,30 @@ import { httpClient } from '@/lib/http/client';
 import { tokenStorage } from '@/lib/storage/token-storage';
 
 import type {
-  PostApiAuthLoginData,
+  CredentialsRequest,
   PostApiAuthLoginResponse,
   PostApiAuthRefreshData,
   PostApiAuthRefreshResponse,
-  PostApiAuthRegisterData,
   PostApiAuthRegisterResponse,
 } from '@/types/generated';
 
-export async function register({
-  body,
-}: PostApiAuthRegisterData): Promise<PostApiAuthRegisterResponse> {
+export async function register(
+  credentials: CredentialsRequest,
+): Promise<PostApiAuthRegisterResponse> {
   const { data } = await httpClient.post<PostApiAuthRegisterResponse>(
     '/auth/register',
-    body,
+    credentials,
   );
 
   return data;
 }
 
-export async function login({
-  body,
-}: PostApiAuthLoginData): Promise<PostApiAuthLoginResponse> {
+export async function login(
+  credentials: CredentialsRequest,
+): Promise<PostApiAuthLoginResponse> {
   const { data } = await httpClient.post<PostApiAuthLoginResponse>(
     '/auth/login',
-    body,
+    credentials,
   );
 
   await tokenStorage.setTokens(data.accessToken, data.refreshToken);
