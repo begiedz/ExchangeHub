@@ -7,10 +7,9 @@ import {
   Info,
   User,
 } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
-import getWallet from '@/api/wallet';
 import { Screen } from '@/components/layout/screen';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -24,48 +23,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { WalletBalance } from '@/components/wallet/wallet-balance';
+import { WalletCard } from '@/components/wallet/wallet-card';
+import { useWallet } from '@/hooks/queries/use-wallet';
 import { useHslColor } from '@/hooks/use-hsl-color';
 import { logger } from '@/lib/logger';
 
 export default function HomeScreen() {
   const router = useRouter();
   const [amount, setAmount] = useState<string>('1000');
-  const [currentBalance, setCurrentBalance] = useState<number | null>(null);
-  const [currencyCode, setCurrencyCode] = useState<string | null>(null);
-  const [selectedCurrency, setSelectedCurrency] = useState<string>('GBP');
 
   const foreground = useHslColor('--foreground');
 
-  useEffect(() => {
-    async function fetchWallet() {
-      const walletBalance = await getWallet();
+  const { data: wallet, isPending, isError } = useWallet();
 
-      const plnBalance = walletBalance.balances.find(
-        balance => balance.currencyCode === 'PLN',
-      );
-
-      if (plnBalance) {
-        setCurrentBalance(Number(plnBalance.amount));
-        setCurrencyCode(plnBalance.currencyCode);
-      }
-    }
-    fetchWallet();
-  }, []);
+  const plnBalance = wallet?.balances.find(
+    balance => balance.currencyCode === 'PLN',
+  );
 
   return (
-    <Screen scrollable>
+    <Screen
+      scrollable
+      contentClassName="gap-4"
+    >
       {/* 1. Górny pasek: Saldo i Awatar */}
-      <View className="mb-6 flex-row items-center justify-between px-2">
-        <View>
-          <Text className="text-xs font-medium text-muted-foreground">
-            Current Balance
-          </Text>
-          <View className="flex flex-row">
-            <Text className="text-2xl font-bold">{currentBalance}</Text>
-            <Text className="text-2xl"> </Text>
-            <Text className="text-2xl font-bold">{currencyCode}</Text>
-          </View>
-        </View>
+      <View className="flex-row items-center justify-between px-2">
+        <WalletBalance
+          balance={plnBalance}
+          isPending={isPending}
+          isError={isError}
+        />
+
         <Button
           onPress={() => router.push('/account')}
           className="h-11 w-11 items-center justify-center rounded-full border border-border bg-card shadow-sm"
@@ -78,7 +66,7 @@ export default function HomeScreen() {
       </View>
 
       {/* 2. Dwie karty u góry: Send Money oraz Receive */}
-      <View className="mb-6 flex-row gap-3">
+      <View className="flex-row gap-3">
         {/* Send Money -> Przekierowanie do transferTopUp */}
         <Pressable
           onPress={() => router.push('/transfer-top-up')}
@@ -222,6 +210,12 @@ export default function HomeScreen() {
           </View>
         </CardContent>
       </Card>
+
+      <WalletCard
+        wallet={wallet}
+        isPending={isPending}
+        isError={isError}
+      />
 
       {/* 4. Sekcja: Recent Activity */}
       <View className="mb-4">
