@@ -45,7 +45,7 @@ export default function HomeScreen() {
       );
 
       if (plnBalance) {
-        setCurrentBalance(plnBalance.amount);
+        setCurrentBalance(Number(plnBalance.amount));
         setCurrencyCode(plnBalance.currencyCode);
       }
     }

@@ -95,7 +95,10 @@ export default function RatesScreen() {
               </Text>
             </View>
             <Text className="text-base font-bold text-foreground">
-              {item.bid ? Number(item.bid).toFixed(4).replace('.', ',') : '0,0000'} PLN
+              {item.bid
+                ? Number(item.bid).toFixed(4).replace('.', ',')
+                : '0,0000'}{' '}
+              PLN
             </Text>
           </View>
         ))}
