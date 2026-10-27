@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, TextInput, ScrollView, Pressable, Platform } from 'react-native';
 import { Screen } from '@/components/layout/screen';
-import { Text } from '@/components/ui/text';
-import { Search, Archive, Calendar, ChevronDown } from 'lucide-react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { Input } from '@/components/ui/input';
+import { Text } from '@/components/ui/text';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Archive, Calendar, ChevronDown, Search } from 'lucide-react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { Platform, Pressable, View } from 'react-native';
 
 interface HistoricalRate {
   no: string;
@@ -31,15 +31,19 @@ const AVAILABLE_CURRENCIES = [
 export default function ArchiveScreen() {
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
-  
+
   // Domyślny zakres dat (np. ostatni miesiąc)
-  const [startDate, setStartDate] = useState(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
+  const [startDate, setStartDate] = useState(
+    new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+  );
   const [endDate, setEndDate] = useState(new Date());
-  
+
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
 
-  const [historyData, setHistoryData] = useState<NbpHistoryResponse | null>(null);
+  const [historyData, setHistoryData] = useState<NbpHistoryResponse | null>(
+    null,
+  );
   const [searchQuery, setSearchQuery] = useState('');
 
   // Formatowanie daty do formatu YYYY-MM-DD wymaganego przez API NBP
@@ -53,9 +57,9 @@ export default function ArchiveScreen() {
       try {
         const startStr = formatDateToApi(startDate);
         const endStr = formatDateToApi(endDate);
-        
+
         const response = await fetch(
-          `https://api.nbp.pl/api/exchangerates/rates/a/${selectedCurrency}/${startStr}/${endStr}/?format=json`
+          `https://api.nbp.pl/api/exchangerates/rates/a/${selectedCurrency}/${startStr}/${endStr}/?format=json`,
         );
         if (response.ok) {
           const data = await response.json();
@@ -91,9 +95,10 @@ export default function ArchiveScreen() {
     if (!historyData?.rates) return [];
     return [...historyData.rates]
       .reverse() // najnowsze na górze
-      .filter((item) =>
-        item.effectiveDate.includes(searchQuery) ||
-        item.mid.toString().includes(searchQuery)
+      .filter(
+        item =>
+          item.effectiveDate.includes(searchQuery) ||
+          item.mid.toString().includes(searchQuery),
       );
   }, [historyData, searchQuery]);
 
@@ -108,58 +113,84 @@ export default function ArchiveScreen() {
 
   return (
     <Screen scrollable>
-      
       {/* 1. Nagłówek ekranu */}
-      <View className="flex-row justify-between items-center mb-6 px-1">
+      <View className="mb-6 flex-row items-center justify-between px-1">
         <View>
-          <Text className="text-2xl font-bold text-foreground">Archive Rates</Text>
-          <Text className="text-xs text-muted-foreground mt-0.5">Historical exchange data</Text>
+          <Text className="text-2xl font-bold text-foreground">
+            Archive Rates
+          </Text>
+          <Text className="mt-0.5 text-xs text-muted-foreground">
+            Historical exchange data
+          </Text>
         </View>
-        <View className="w-11 h-11 rounded-full bg-card border border-border items-center justify-center shadow-sm">
-          <Archive size={20} className="text-primary" />
+        <View className="h-11 w-11 items-center justify-center rounded-full border border-border bg-card shadow-sm">
+          <Archive
+            size={20}
+            className="text-primary"
+          />
         </View>
       </View>
 
       {/* 2. Wyszukiwarka */}
-      <View className="flex-row items-center bg-card border border-border rounded-2xl px-4 py-3 mb-4 shadow-sm">
-        <Search size={18} className="text-muted-foreground mr-2.5" />
+      <View className="mb-4 flex-row items-center rounded-2xl border border-border bg-card px-4 py-3 shadow-sm">
+        <Search
+          size={18}
+          className="mr-2.5 text-muted-foreground"
+        />
         <Input
           placeholder=" Search date or rate..."
           placeholderTextColor="#94a3b8"
           value={searchQuery}
           onChangeText={setSearchQuery}
-          className="flex-1 text-foreground text-sm p-0 m-0 ml-2.5"
+          className="m-0 ml-2.5 flex-1 p-0 text-sm text-foreground"
         />
       </View>
 
       {/* 3. Wybór dat (Start Date & End Date) */}
-      <View className="flex-row gap-3 mb-4">
-        
+      <View className="mb-4 flex-row gap-3">
         {/* Start Date Picker Button */}
-        <Pressable 
+        <Pressable
           onPress={() => setShowStartPicker(true)}
-          className="flex-1 bg-card border border-border rounded-3xl p-4 shadow-sm"
+          className="flex-1 rounded-3xl border border-border bg-card p-4 shadow-sm"
         >
-          <View className="flex-row items-center justify-between mb-1">
-            <Text className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Start Date</Text>
-            <Calendar size={14} className="text-muted-foreground" />
+          <View className="mb-1 flex-row items-center justify-between">
+            <Text className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Start Date
+            </Text>
+            <Calendar
+              size={14}
+              className="text-muted-foreground"
+            />
           </View>
-          <Text className="text-foreground font-bold text-sm">
-            {startDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
+          <Text className="text-sm font-bold text-foreground">
+            {startDate.toLocaleDateString('en-US', {
+              month: 'short',
+              day: '2-digit',
+              year: 'numeric',
+            })}
           </Text>
         </Pressable>
 
         {/* End Date Picker Button */}
-        <Pressable 
+        <Pressable
           onPress={() => setShowEndPicker(true)}
-          className="flex-1 bg-card border border-border rounded-3xl p-4 shadow-sm"
+          className="flex-1 rounded-3xl border border-border bg-card p-4 shadow-sm"
         >
-          <View className="flex-row items-center justify-between mb-1">
-            <Text className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">End Date</Text>
-            <Calendar size={14} className="text-muted-foreground" />
+          <View className="mb-1 flex-row items-center justify-between">
+            <Text className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              End Date
+            </Text>
+            <Calendar
+              size={14}
+              className="text-muted-foreground"
+            />
           </View>
-          <Text className="text-foreground font-bold text-sm">
-            {endDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
+          <Text className="text-sm font-bold text-foreground">
+            {endDate.toLocaleDateString('en-US', {
+              month: 'short',
+              day: '2-digit',
+              year: 'numeric',
+            })}
           </Text>
         </Pressable>
       </View>
@@ -186,50 +217,60 @@ export default function ArchiveScreen() {
       )}
 
       {/* 4. Główna karta wykresu i wyboru waluty */}
-      <View className="bg-card border border-border rounded-3xl p-5 shadow-lg mb-6">
-        
+      <View className="mb-6 rounded-3xl border border-border bg-card p-5 shadow-lg">
         {/* Nagłówek karty z wyborem waluty */}
-        <View className="flex-row justify-between items-center mb-3">
+        <View className="mb-3 flex-row items-center justify-between">
           <View>
-            <Pressable 
+            <Pressable
               onPress={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
-              className="flex-row items-center gap-1 bg-muted/40 px-3 py-1.5 rounded-xl border border-border/60 self-start"
+              className="flex-row items-center gap-1 self-start rounded-xl border border-border/60 bg-muted/40 px-3 py-1.5"
             >
-              <Text className="text-xs font-bold text-foreground">{selectedCurrency}/PLN</Text>
-              <ChevronDown size={14} className="text-muted-foreground" />
+              <Text className="text-xs font-bold text-foreground">
+                {selectedCurrency}/PLN
+              </Text>
+              <ChevronDown
+                size={14}
+                className="text-muted-foreground"
+              />
             </Pressable>
           </View>
-          <View className="bg-emerald-100 px-2.5 py-1 rounded-full">
-            <Text className="text-emerald-700 text-xs font-bold">{percentageChange}</Text>
+          <View className="rounded-full bg-emerald-100 px-2.5 py-1">
+            <Text className="text-xs font-bold text-emerald-700">
+              {percentageChange}
+            </Text>
           </View>
         </View>
 
         {/* Lista rozwijana walut */}
         {showCurrencyDropdown && (
-          <View className="bg-muted/90 rounded-2xl p-2 mb-4 border border-border">
-            {AVAILABLE_CURRENCIES.map((cur) => (
+          <View className="mb-4 rounded-2xl border border-border bg-muted/90 p-2">
+            {AVAILABLE_CURRENCIES.map(cur => (
               <Pressable
                 key={cur.code}
                 onPress={() => {
                   setSelectedCurrency(cur.code);
                   setShowCurrencyDropdown(false);
                 }}
-                className={`p-2.5 rounded-xl flex-row justify-between items-center ${selectedCurrency === cur.code ? 'bg-primary/20' : ''}`}
+                className={`flex-row items-center justify-between rounded-xl p-2.5 ${selectedCurrency === cur.code ? 'bg-primary/20' : ''}`}
               >
-                <Text className="text-foreground font-semibold text-xs">{cur.code} - {cur.name}</Text>
+                <Text className="text-xs font-semibold text-foreground">
+                  {cur.code} - {cur.name}
+                </Text>
               </Pressable>
             ))}
           </View>
         )}
 
-        <Text className="text-2xl font-bold text-foreground mb-4">
-          {historyData && historyData.rates.length > 0 
-            ? historyData.rates[historyData.rates.length - 1].mid.toFixed(4).replace('.', ',')
+        <Text className="mb-4 text-2xl font-bold text-foreground">
+          {historyData && historyData.rates.length > 0
+            ? historyData.rates[historyData.rates.length - 1].mid
+                .toFixed(4)
+                .replace('.', ',')
             : 'Loading...'}
         </Text>
 
         {/* Paski wykresu wizualnego */}
-        <View className="flex-row justify-between items-end h-20 pt-2 gap-1.5">
+        <View className="h-20 flex-row items-end justify-between gap-1.5 pt-2">
           {historyData?.rates.slice(-8).map((item, index, arr) => {
             const isHighest = index === arr.length - 1;
             return (
@@ -245,30 +286,35 @@ export default function ArchiveScreen() {
 
       {/* 5. Sekcja: Recent Entries (Lista historyczna) */}
       <View className="mb-6">
-        <Text className="text-lg font-bold text-foreground mb-3 px-1">Recent Entries</Text>
-        
+        <Text className="mb-3 px-1 text-lg font-bold text-foreground">
+          Recent Entries
+        </Text>
+
         <View className="gap-2.5">
-          {filteredRates.map((item) => (
+          {filteredRates.map(item => (
             <View
               key={item.no}
-              className="bg-card border border-border rounded-3xl p-4 flex-row items-center justify-between shadow-sm"
+              className="flex-row items-center justify-between rounded-3xl border border-border bg-card p-4 shadow-sm"
             >
               <View>
-                <Text className="text-foreground font-bold text-sm">
-                  {new Date(item.effectiveDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
+                <Text className="text-sm font-bold text-foreground">
+                  {new Date(item.effectiveDate).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: '2-digit',
+                    year: 'numeric',
+                  })}
                 </Text>
-                <Text className="text-xs text-muted-foreground mt-0.5">
+                <Text className="mt-0.5 text-xs text-muted-foreground">
                   {selectedCurrency}/PLN
                 </Text>
               </View>
-              <Text className="text-foreground font-bold text-base">
+              <Text className="text-base font-bold text-foreground">
                 {item.mid.toFixed(4).replace('.', ',')}
               </Text>
             </View>
           ))}
         </View>
       </View>
-
     </Screen>
   );
 }
