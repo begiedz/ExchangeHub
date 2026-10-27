@@ -1,9 +1,11 @@
-import { buyCurrency } from '@/api/exchange';
+import { buyCurrency, sellCurrency } from '@/api/exchange';
 import { httpClient } from '@/lib/http/client';
 
 import type {
   BuyCurrencyRequest,
   PostApiExchangeBuyResponse,
+  PostApiExchangeSellResponse,
+  SellCurrencyRequest,
 } from '@/types/generated';
 
 jest.mock('@/lib/http/client', () => ({
@@ -21,7 +23,7 @@ describe('buyCurrency', () => {
 
     const response = {
       id: 'transaction-1',
-      type: 'Buy',
+      type: 'Purchase',
       sourceCurrency: 'PLN',
       sourceAmount: 430,
       targetCurrency: 'EUR',
@@ -37,6 +39,36 @@ describe('buyCurrency', () => {
     const result = await buyCurrency(request);
 
     expect(httpClient.post).toHaveBeenCalledWith('/exchange/buy', request);
+
+    expect(result).toEqual(response);
+  });
+});
+
+describe('sellCurrency', () => {
+  it('should send the correct sell request', async () => {
+    const request = {
+      currency: 'EUR',
+      amount: 50,
+    } satisfies SellCurrencyRequest;
+
+    const response = {
+      id: 'transaction-2',
+      type: 'Sell',
+      sourceCurrency: 'EUR',
+      sourceAmount: 50,
+      targetCurrency: 'PLN',
+      targetAmount: 212,
+      exchangeRate: 4.24,
+      createdAtUtc: '2026-10-27T12:00:00Z',
+    } satisfies PostApiExchangeSellResponse;
+
+    jest.mocked(httpClient.post).mockResolvedValueOnce({
+      data: response,
+    });
+
+    const result = await sellCurrency(request);
+
+    expect(httpClient.post).toHaveBeenCalledWith('/exchange/sell', request);
 
     expect(result).toEqual(response);
   });
