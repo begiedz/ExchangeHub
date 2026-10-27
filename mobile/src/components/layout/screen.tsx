@@ -1,6 +1,6 @@
+import { cn } from '@/lib/utils';
 import { ReactNode } from 'react';
 import { ScrollView, View } from 'react-native';
-import { cn } from '@/lib/utils';
 
 type ScreenProps = {
   children: ReactNode;
