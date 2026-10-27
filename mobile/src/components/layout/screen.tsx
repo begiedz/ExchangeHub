@@ -15,15 +15,10 @@ export function Screen({
   scrollable = true,
   className,
   contentClassName,
-  safeAreaTop = true,
 }: ScreenProps) {
   const containerClassName = cn('flex-1', className);
 
-  const contentClasses = cn(
-    'px-4 pb-6',
-    safeAreaTop ? 'pt-safe-offset-4' : 'pt-4',
-    contentClassName,
-  );
+  const contentClasses = cn('p-4', contentClassName);
 
   if (!scrollable) {
     return (
