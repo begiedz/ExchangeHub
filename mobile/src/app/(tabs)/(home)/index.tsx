@@ -1,19 +1,20 @@
-import { useEffect, useState } from 'react';
-import { View, Pressable, ScrollView } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { useRouter } from 'expo-router';
 import {
-  User,
-  ArrowUpRight,
-  ArrowDownLeft,
   ArrowDown,
+  ArrowDownLeft,
+  ArrowUpRight,
   Info,
+  User,
 } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, View } from 'react-native';
 
-import { useHslColor } from '@/hooks/useHslColor';
-import { Button } from '@/components/ui/button';
-import { logger } from '@/lib/logger';
 import getWallet from '@/api/wallet';
+import { Screen } from '@/components/layout/screen';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -23,9 +24,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Screen } from '@/components/layout/screen';
+import { useHslColor } from '@/hooks/use-hsl-color';
+import { logger } from '@/lib/logger';
 
 export default function HomeScreen() {
   const router = useRouter();

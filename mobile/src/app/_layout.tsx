@@ -1,16 +1,17 @@
 import '../global.css';
 
+import { PortalHost } from '@rn-primitives/portal';
 import { Stack } from 'expo-router';
 import { ThemeProvider } from 'expo-router/react-navigation';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
-import { PortalHost } from '@rn-primitives/portal';
 import { useEffect } from 'react';
-import { Platform, StatusBar as NativeStatusBar } from 'react-native';
+import { StatusBar as NativeStatusBar, Platform } from 'react-native';
+
+import { useNavTheme } from '@/hooks/use-nav-theme';
+import { logger } from '@/lib/logger';
 
 import { useAuthStore } from '@/stores/auth-store';
-import { useNavTheme } from '@/hooks/useNavTheme';
-import { logger } from '@/lib/logger';
 
 export const unstable_settings = {
   anchor: '(tabs)',

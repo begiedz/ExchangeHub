@@ -1,4 +1,4 @@
-import { useHslColor } from '@/hooks/useHslColor';
+import { useHslColor } from '@/hooks/use-hsl-color';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { Platform } from 'react-native';
 

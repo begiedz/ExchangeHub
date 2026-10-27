@@ -1,10 +1,10 @@
-import { useColorScheme } from 'nativewind';
+import { useHslColor } from '@/hooks/use-hsl-color';
 import {
   DarkTheme,
   DefaultTheme,
   type Theme,
 } from 'expo-router/react-navigation';
-import { useHslColor } from '@/hooks/useHslColor';
+import { useColorScheme } from 'nativewind';
 
 export function useNavTheme(): Theme {
   const { colorScheme } = useColorScheme();
