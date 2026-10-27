@@ -29,11 +29,38 @@ httpClient.interceptors.request.use(async config => {
   return config;
 });
 
-httpClient.interceptors.response.use(async response => {
-  logger.log('Server response:', response.data);
+httpClient.interceptors.response.use(
+  response => {
+    logger.log('[HTTP RESPONSE]', {
+      method: response.config.method?.toUpperCase(),
+      url: `${response.config.baseURL ?? ''}${response.config.url ?? ''}`,
+      status: response.status,
+      data: response.data,
+    });
 
-  return response;
-});
+    return response;
+  },
+  error => {
+    if (axios.isAxiosError(error)) {
+      logger.error('[HTTP ERROR]', {
+        method: error.config?.method?.toUpperCase(),
+        url: `${error.config?.baseURL ?? ''}${error.config?.url ?? ''}`,
+        message: error.message,
+        code: error.code,
+
+        // exsists only if server responded
+        status: error.response?.status ?? null,
+        data: error.response?.data ?? null,
+
+        hasResponse: Boolean(error.response),
+      });
+    } else {
+      logger.error('[HTTP ERROR]', error);
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 let refreshPromise: Promise<string> | null = null;
 
