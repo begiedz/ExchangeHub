@@ -1,8 +1,8 @@
 import { Screen } from '@/components/layout/screen';
-import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/search-input';
 import { Text } from '@/components/ui/text';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Archive, Calendar, ChevronDown, Search } from 'lucide-react-native';
+import { Archive, Calendar, ChevronDown } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { Platform, Pressable, View } from 'react-native';
 
@@ -112,9 +112,12 @@ export default function ArchiveScreen() {
   }, [historyData]);
 
   return (
-    <Screen scrollable>
+    <Screen
+      scrollable
+      contentClassName="gap-4"
+    >
       {/* 1. Nagłówek ekranu */}
-      <View className="mb-6 flex-row items-center justify-between px-1">
+      <View className="flex-row items-center justify-between px-1">
         <View>
           <Text className="text-2xl font-bold text-foreground">
             Archive Rates
@@ -132,22 +135,14 @@ export default function ArchiveScreen() {
       </View>
 
       {/* 2. Wyszukiwarka */}
-      <View className="mb-4 flex-row items-center rounded-2xl border border-border bg-card px-4 py-3 shadow-sm">
-        <Search
-          size={18}
-          className="mr-2.5 text-muted-foreground"
-        />
-        <Input
-          placeholder=" Search date or rate..."
-          placeholderTextColor="#94a3b8"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          className="m-0 ml-2.5 flex-1 p-0 text-sm text-foreground"
-        />
-      </View>
+      <SearchInput
+        placeholder="Search date or rate..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
 
       {/* 3. Wybór dat (Start Date & End Date) */}
-      <View className="mb-4 flex-row gap-3">
+      <View className="flex-row gap-3">
         {/* Start Date Picker Button */}
         <Pressable
           onPress={() => setShowStartPicker(true)}
@@ -197,37 +192,37 @@ export default function ArchiveScreen() {
 
       {/* Komponenty okna wyboru daty */}
       {showStartPicker && (
-  <DateTimePicker
-    value={startDate}
-    mode="date"
-    display="default"
-    onValueChange={(event, date) => {
-      // Sprawdzamy czy użytkownik faktycznie wybrał datę (i czy to obiekt Date)
-      if (date) setStartDate(date);
-      if (Platform.OS === 'android') setShowStartPicker(false);
-    }}
-    onDismiss={() => setShowStartPicker(false)}
-    maximumDate={endDate}
-  />
-)}
+        <DateTimePicker
+          value={startDate}
+          mode="date"
+          display="default"
+          onValueChange={(event, date) => {
+            // Sprawdzamy czy użytkownik faktycznie wybrał datę (i czy to obiekt Date)
+            if (date) setStartDate(date);
+            if (Platform.OS === 'android') setShowStartPicker(false);
+          }}
+          onDismiss={() => setShowStartPicker(false)}
+          maximumDate={endDate}
+        />
+      )}
 
-{showEndPicker && (
-  <DateTimePicker
-    value={endDate}
-    mode="date"
-    display="default"
-    onValueChange={(event, date) => {
-      if (date) setEndDate(date);
-      if (Platform.OS === 'android') setShowEndPicker(false);
-    }}
-    onDismiss={() => setShowEndPicker(false)}
-    minimumDate={startDate}
-    maximumDate={new Date()}
-  />
-)}
+      {showEndPicker && (
+        <DateTimePicker
+          value={endDate}
+          mode="date"
+          display="default"
+          onValueChange={(event, date) => {
+            if (date) setEndDate(date);
+            if (Platform.OS === 'android') setShowEndPicker(false);
+          }}
+          onDismiss={() => setShowEndPicker(false)}
+          minimumDate={startDate}
+          maximumDate={new Date()}
+        />
+      )}
 
       {/* 4. Główna karta wykresu i wyboru waluty */}
-      <View className="mb-6 rounded-3xl border border-border bg-card p-5 shadow-lg">
+      <View className="rounded-3xl border border-border bg-card p-5 shadow-lg">
         {/* Nagłówek karty z wyborem waluty */}
         <View className="mb-3 flex-row items-center justify-between">
           <View>
@@ -253,7 +248,7 @@ export default function ArchiveScreen() {
 
         {/* Lista rozwijana walut */}
         {showCurrencyDropdown && (
-          <View className="mb-4 rounded-2xl border border-border bg-muted/90 p-2">
+          <View className="rounded-2xl border border-border bg-muted/90 p-2">
             {AVAILABLE_CURRENCIES.map(cur => (
               <Pressable
                 key={cur.code}
@@ -271,7 +266,7 @@ export default function ArchiveScreen() {
           </View>
         )}
 
-        <Text className="mb-4 text-2xl font-bold text-foreground">
+        <Text className="text-2xl font-bold text-foreground">
           {historyData && historyData.rates.length > 0
             ? historyData.rates[historyData.rates.length - 1].mid
                 .toFixed(4)
@@ -295,10 +290,8 @@ export default function ArchiveScreen() {
       </View>
 
       {/* 5. Sekcja: Recent Entries (Lista historyczna) */}
-      <View className="mb-6">
-        <Text className="mb-3 px-1 text-lg font-bold text-foreground">
-          Recent Entries
-        </Text>
+      <View>
+        <Text className="mb-3 px-1 text-lg font-bold">Recent Entries</Text>
 
         <View className="gap-2.5">
           {filteredRates.map(item => (
@@ -307,7 +300,7 @@ export default function ArchiveScreen() {
               className="flex-row items-center justify-between rounded-3xl border border-border bg-card p-4 shadow-sm"
             >
               <View>
-                <Text className="text-sm font-bold text-foreground">
+                <Text className="text-sm font-bold">
                   {new Date(item.effectiveDate).toLocaleDateString('en-US', {
                     month: 'short',
                     day: '2-digit',
