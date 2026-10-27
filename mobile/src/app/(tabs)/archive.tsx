@@ -197,24 +197,34 @@ export default function ArchiveScreen() {
 
       {/* Komponenty okna wyboru daty */}
       {showStartPicker && (
-        <DateTimePicker
-          value={startDate}
-          mode="date"
-          display="default"
-          onChange={onStartDateChange}
-          maximumDate={endDate}
-        />
-      )}
-      {showEndPicker && (
-        <DateTimePicker
-          value={endDate}
-          mode="date"
-          display="default"
-          onChange={onEndDateChange}
-          minimumDate={startDate}
-          maximumDate={new Date()}
-        />
-      )}
+  <DateTimePicker
+    value={startDate}
+    mode="date"
+    display="default"
+    onValueChange={(event, date) => {
+      // Sprawdzamy czy użytkownik faktycznie wybrał datę (i czy to obiekt Date)
+      if (date) setStartDate(date);
+      if (Platform.OS === 'android') setShowStartPicker(false);
+    }}
+    onDismiss={() => setShowStartPicker(false)}
+    maximumDate={endDate}
+  />
+)}
+
+{showEndPicker && (
+  <DateTimePicker
+    value={endDate}
+    mode="date"
+    display="default"
+    onValueChange={(event, date) => {
+      if (date) setEndDate(date);
+      if (Platform.OS === 'android') setShowEndPicker(false);
+    }}
+    onDismiss={() => setShowEndPicker(false)}
+    minimumDate={startDate}
+    maximumDate={new Date()}
+  />
+)}
 
       {/* 4. Główna karta wykresu i wyboru waluty */}
       <View className="mb-6 rounded-3xl border border-border bg-card p-5 shadow-lg">
