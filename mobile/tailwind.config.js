@@ -107,5 +107,5 @@ module.exports = {
     hoverOnlyWhenSupported: true,
   },
 
-  plugins: [require('tailwindcss-animate')],
+  plugins: [require('tailwindcss-animate'), require('tailwindcss-safe-area')],
 };
