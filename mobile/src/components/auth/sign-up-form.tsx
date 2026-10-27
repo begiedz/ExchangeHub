@@ -1,16 +1,16 @@
+import { login, register } from '@/api/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
-import { Pressable, TextInput, View } from 'react-native';
+import { logger } from '@/lib/logger';
+import { focusInput } from '@/lib/utils';
+import { useAuthStore } from '@/stores/auth-store';
+import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
-import { login, register } from '@/api/auth';
-import axios from 'axios';
-import { useAuthStore } from '@/stores/auth-store';
-import { focusInput } from '@/lib/utils';
-import { logger } from '@/lib/logger';
+import { Pressable, TextInput, View } from 'react-native';
 
 export function SignUpForm() {
   const [email, setEmail] = useState<string>('');
