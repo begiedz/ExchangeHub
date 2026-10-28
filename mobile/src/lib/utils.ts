@@ -15,7 +15,7 @@ export function formatCurrency(
   amount: BalanceDto['amount'],
   currency: BalanceDto['currencyCode'],
 ): string {
-  return new Intl.NumberFormat('en-GB', {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
   }).format(Number(amount));

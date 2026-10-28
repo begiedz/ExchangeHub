@@ -1,3 +1,4 @@
+import { Card, CardContent } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { formatCurrency } from '@/lib/utils';
@@ -87,41 +88,43 @@ export function TransactionCard({ item }: TransactionCardProps) {
   });
 
   return (
-    <View className="flex-row items-center justify-between rounded-3xl border border-border bg-card p-4 shadow-sm">
-      {/* Transaction icon */}
-      <View className="flex-1 flex-row items-center">
-        <View
-          className={`mr-3.5 h-11 w-11 items-center justify-center rounded-full ${iconBackground}`}
-        >
-          <Icon
-            as={IconComponent}
-            size={20}
-            className={iconColor}
-          />
-        </View>
-
-        {/* Transaction details */}
-        <View className="flex-1">
-          <Text
-            className="text-sm font-bold text-foreground"
-            numberOfLines={1}
+    <Card className="py-4">
+      <CardContent className="flex-row items-center justify-between px-4">
+        {/* Transaction icon */}
+        <View className="flex-1 flex-row items-center">
+          <View
+            className={`mr-3.5 h-11 w-11 items-center justify-center rounded-full ${iconBackground}`}
           >
-            {title}
-          </Text>
+            <Icon
+              as={IconComponent}
+              size={20}
+              className={iconColor}
+            />
+          </View>
 
-          <Text className="mt-0.5 text-xs text-muted-foreground">{date}</Text>
+          {/* Transaction details */}
+          <View className="flex-1">
+            <Text
+              className="text-sm font-bold text-foreground"
+              numberOfLines={1}
+            >
+              {title}
+            </Text>
+
+            <Text className="mt-0.5 text-xs text-muted-foreground">{date}</Text>
+          </View>
         </View>
-      </View>
 
-      {/* Transaction amount */}
-      <Text
-        className={`ml-2 text-sm font-bold ${
-          isOutgoing ? 'text-foreground' : 'text-primary'
-        }`}
-      >
-        {isOutgoing ? '-' : '+'}
-        {amount}
-      </Text>
-    </View>
+        {/* Transaction amount */}
+        <Text
+          className={`ml-2 text-sm font-bold ${
+            isOutgoing ? 'text-foreground' : 'text-primary'
+          }`}
+        >
+          {isOutgoing ? '-' : '+'}
+          {amount}
+        </Text>
+      </CardContent>
+    </Card>
   );
 }
