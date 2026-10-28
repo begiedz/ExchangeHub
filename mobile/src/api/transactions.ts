@@ -4,7 +4,7 @@ import type {
   GetApiTransactionsResponse,
 } from '@/types/generated';
 
-type TransactionsQuery = GetApiTransactionsData['query'];
+export type TransactionsQuery = GetApiTransactionsData['query'];
 
 /**
  * Retrieves the user's transaction history.

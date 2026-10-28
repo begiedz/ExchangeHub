@@ -49,7 +49,7 @@ export function SignUpForm() {
       await login(credentials);
 
       signIn();
-      router.replace('/(tabs)/(home)');
+      router.replace('/(tabs)/home');
     } catch (error: unknown) {
       if (axios.isAxiosError<{ detail: string }>(error)) {
         setError(error.response?.data?.detail ?? 'Something went wrong.');
