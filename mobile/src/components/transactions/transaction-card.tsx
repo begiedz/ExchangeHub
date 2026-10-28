@@ -1,5 +1,6 @@
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
+import { formatCurrency } from '@/lib/utils';
 import type { TransactionDto } from '@/types/generated';
 import {
   ArrowDownLeft,
@@ -75,10 +76,7 @@ export function TransactionCard({ item }: TransactionCardProps) {
 
   const isOutgoing = item.type === 'TransferSent';
 
-  const amount = new Intl.NumberFormat('en-GB', {
-    style: 'currency',
-    currency: item.targetCurrency,
-  }).format(Number(item.targetAmount));
+  const amount = formatCurrency(item.targetAmount, item.targetCurrency);
 
   const date = new Date(item.createdAtUtc).toLocaleString('en-GB', {
     day: '2-digit',

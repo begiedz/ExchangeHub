@@ -1,6 +1,7 @@
 import { Text } from '@/components/ui/text';
 import { ActivityIndicator, View } from 'react-native';
 
+import { formatCurrency } from '@/lib/utils';
 import type { BalanceDto } from '@/types/generated';
 
 type WalletBalanceProps = {
@@ -26,10 +27,7 @@ export function WalletBalance({
     return <Text>Balance unavailable.</Text>;
   }
 
-  const formattedBalance = new Intl.NumberFormat('pl-PL', {
-    style: 'currency',
-    currency: balance.currencyCode,
-  }).format(Number(balance.amount));
+  const formattedBalance = formatCurrency(balance.amount, balance.currencyCode);
 
   return (
     <View>
