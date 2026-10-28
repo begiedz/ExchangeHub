@@ -2,7 +2,7 @@ import { Screen } from '@/components/layout/screen';
 import { SearchInput } from '@/components/search-input';
 import { Text } from '@/components/ui/text';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Archive, Calendar, ChevronDown } from 'lucide-react-native';
+import { Calendar, ChevronDown } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { Platform, Pressable, View } from 'react-native';
 
@@ -34,9 +34,9 @@ export default function ArchiveScreen() {
 
   // Domyślny zakres dat (np. ostatni miesiąc)
   const [startDate, setStartDate] = useState(
-    new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    () => new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
   );
-  const [endDate, setEndDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(() => new Date());
 
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
@@ -117,22 +117,10 @@ export default function ArchiveScreen() {
       contentClassName="gap-4"
     >
       {/* 1. Nagłówek ekranu */}
-      <View className="flex-row items-center justify-between px-1">
-        <View>
-          <Text className="text-2xl font-bold text-foreground">
-            Archive Rates
-          </Text>
-          <Text className="mt-0.5 text-xs text-muted-foreground">
-            Historical exchange data
-          </Text>
-        </View>
-        <View className="h-11 w-11 items-center justify-center rounded-full border border-border bg-card shadow-sm">
-          <Archive
-            size={20}
-            className="text-primary"
-          />
-        </View>
-      </View>
+
+      <Text className="text-xs text-muted-foreground">
+        Historical exchange data
+      </Text>
 
       {/* 2. Wyszukiwarka */}
       <SearchInput

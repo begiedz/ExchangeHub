@@ -30,17 +30,11 @@ export default function RatesScreen() {
     >
       {/* Header */}
       <View className="flex-row items-end justify-between px-1">
-        <View>
-          <Text className="text-lg font-bold text-foreground">
-            NBP Exchange Rates
-          </Text>
-
-          <Text className="mt-0.5 text-xs text-muted-foreground">
-            {ratesData
-              ? `Data as of: ${ratesData.effectiveDate}`
-              : 'Exchange rates'}
-          </Text>
-        </View>
+        <Text className="mt-0.5 text-xs text-muted-foreground">
+          {ratesData
+            ? `Data as of: ${ratesData.effectiveDate}`
+            : 'Exchange rates'}
+        </Text>
       </View>
 
       {/* Search */}

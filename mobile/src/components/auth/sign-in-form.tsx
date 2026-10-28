@@ -38,7 +38,7 @@ export function SignInForm() {
     try {
       await login({ email: trimmedEmail, password });
       signIn();
-      router.replace('/(tabs)/(home)');
+      router.replace('/(tabs)/home');
     } catch (error: unknown) {
       if (axios.isAxiosError<{ detail: string }>(error)) {
         setError(error.response?.data?.detail ?? error.message);

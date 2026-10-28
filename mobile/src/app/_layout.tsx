@@ -73,6 +73,7 @@ export default function RootLayout() {
                 headerShown: true,
                 title: 'Account',
                 headerBackTitle: 'Home',
+                headerTitleStyle: { fontWeight: 'bold' },
               }}
             />
             <Stack.Screen
@@ -81,6 +82,7 @@ export default function RootLayout() {
                 headerShown: true,
                 title: 'Transfer Top-up',
                 headerBackTitle: 'Home',
+                headerTitleStyle: { fontWeight: 'bold' },
               }}
             />
           </Stack.Protected>

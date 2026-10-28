@@ -3,6 +3,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 
+import { formatCurrency } from '@/lib/utils';
 import type { WalletDto } from '@/types/generated';
 
 type WalletCardProps = {
@@ -34,10 +35,7 @@ export function WalletCard({ wallet, isPending, isError }: WalletCardProps) {
               <Text className="font-medium">{balance.currencyCode}</Text>
 
               <Text className="font-semibold">
-                {new Intl.NumberFormat('pl-PL', {
-                  style: 'currency',
-                  currency: balance.currencyCode,
-                }).format(Number(balance.amount))}
+                {formatCurrency(balance.amount, balance.currencyCode)}
               </Text>
             </View>
           ))

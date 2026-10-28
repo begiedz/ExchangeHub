@@ -1,10 +1,9 @@
 import { Text } from '@/components/ui/text';
 import { useRouter } from 'expo-router';
-import { ArrowDownLeft, ArrowUpRight, User } from 'lucide-react-native';
+import { ArrowDownLeft, ArrowUpRight } from 'lucide-react-native';
 import { Pressable, View } from 'react-native';
 
 import { Screen } from '@/components/layout/screen';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { WalletBalance } from '@/components/wallet/wallet-balance';
 import { WalletCard } from '@/components/wallet/wallet-card';
@@ -34,16 +33,6 @@ export default function HomeScreen() {
           isPending={isPending}
           isError={isError}
         />
-
-        <Button
-          onPress={() => router.push('/account')}
-          className="h-11 w-11 items-center justify-center rounded-full border border-border bg-card shadow-sm"
-        >
-          <User
-            size={20}
-            color={foreground}
-          />
-        </Button>
       </View>
 
       {/* 2. Dwie karty u góry: Send Money oraz Receive */}
