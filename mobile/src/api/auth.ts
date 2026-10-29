@@ -4,6 +4,7 @@ import { tokenStorage } from '@/lib/storage/token-storage';
 import type {
   CredentialsRequest,
   PostApiAuthLoginResponse,
+  PostApiAuthLogoutResponse,
   PostApiAuthRefreshResponse,
   PostApiAuthRegisterResponse,
   RefreshTokenRequest,
@@ -40,6 +41,16 @@ export async function refreshToken(body: RefreshTokenRequest) {
   return data;
 }
 
-export async function logout(): Promise<void> {
-  await tokenStorage.clearTokens();
+export async function logout() {
+  try {
+    const refreshToken = await tokenStorage.getRefreshToken();
+
+    if (refreshToken) {
+      await httpClient.post<PostApiAuthLogoutResponse>('/auth/logout', {
+        refreshToken,
+      });
+    }
+  } finally {
+    await tokenStorage.clearTokens();
+  }
 }
