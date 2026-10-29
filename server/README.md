@@ -95,6 +95,7 @@ Integration tests need no setup: they start their own database and sign tokens w
 | GET | `/api/users/me` | yes | The current user. |
 | GET | `/api/wallet` | yes | Balances of the current user. |
 | POST | `/api/wallet/top-up` | yes | Simulated PLN top-up; also writes a history entry in the same database transaction. |
+| POST | `/api/wallet/withdraw` | yes | Simulated PLN withdrawal (inverse of top-up). 422 `Wallet.InsufficientFunds` when the balance is too low; writes a `Withdrawal` history entry atomically. |
 | POST | `/api/exchange/buy` | yes | Buy foreign currency for PLN at the current NBP ask rate; returns the saved transaction (201). |
 | POST | `/api/exchange/sell` | yes | Sell foreign currency for PLN at the current NBP bid rate; returns the saved transaction (201). |
 | GET | `/api/transactions` | yes | History of the current user, newest first. `?page=1&pageSize=20` (max 100). |

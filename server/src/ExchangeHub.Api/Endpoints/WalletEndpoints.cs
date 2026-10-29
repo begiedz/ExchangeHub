@@ -3,10 +3,12 @@ using ExchangeHub.Application.Abstractions.Messaging;
 using ExchangeHub.Application.Wallets;
 using ExchangeHub.Application.Wallets.GetWallet;
 using ExchangeHub.Application.Wallets.TopUp;
+using ExchangeHub.Application.Wallets.Withdraw;
 
 namespace ExchangeHub.Api.Endpoints;
 
 public sealed record TopUpRequest(decimal Amount);
+public sealed record WithdrawRequest(decimal Amount);
 
 public static class WalletEndpoints
 {
@@ -38,6 +40,21 @@ public static class WalletEndpoints
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status409Conflict);
+
+        wallet.MapPost("/withdraw", async (
+                WithdrawRequest request,
+                HttpContext http,
+                ICommandHandler<WithdrawCommand, BalanceDto> handler,
+                CancellationToken ct) =>
+            http.User.GetUserId() is { } userId
+                ? (await handler.Handle(new WithdrawCommand(userId, request.Amount), ct)).ToHttpResult()
+                : Results.Unauthorized())
+            .WithSummary("Simulated withdrawal of PLN from the wallet")
+            .Produces<BalanceDto>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
 
         return app;
     }

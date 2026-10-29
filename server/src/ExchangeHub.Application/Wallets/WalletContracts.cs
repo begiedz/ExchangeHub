@@ -21,4 +21,7 @@ public sealed class ConcurrencyConflictException(Exception inner)
 public static class WalletErrors
 {
     public static Error Validation(string description) => new("Wallet.Validation", description, ErrorType.Validation);
+
+    public static readonly Error InsufficientFunds =
+        new("Wallet.InsufficientFunds", "Insufficient PLN funds.", ErrorType.UnprocessableEntity);
 }
