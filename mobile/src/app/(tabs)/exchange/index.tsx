@@ -14,6 +14,8 @@ import { useExchange, type ExchangeMode } from '@/hooks/mutations/use-exchange';
 import { useRates } from '@/hooks/queries/use-rates';
 import { useWallet } from '@/hooks/queries/use-wallet';
 import { formatCurrency } from '@/lib/utils';
+import { parseAmountInput } from '@/lib/money';
+import { getWalletBalance } from '@/lib/wallet';
 
 export default function ExchangeScreen() {
   const [mode, setMode] = useState<ExchangeMode>('buy');
@@ -30,7 +32,7 @@ export default function ExchangeScreen() {
   const rate = Number(mode === 'buy' ? selectedRate?.ask : selectedRate?.bid);
 
   // the entered amount always refers to foreign currency
-  const value = Number(amount.replace(',', '.'));
+  const { value, isValid: validAmount } = parseAmountInput(amount, 1_000_000);
 
   const plnAmount =
     Number.isFinite(rate) && rate > 0 && Number.isFinite(value)
@@ -41,17 +43,13 @@ export default function ExchangeScreen() {
   const sourceCurrency = mode === 'buy' ? 'PLN' : currency;
 
   const balance = Number(
-    wallet.data?.balances.find(item => item.currencyCode === sourceCurrency)
-      ?.amount ?? 0,
+    getWalletBalance(wallet.data, sourceCurrency)?.amount ?? 0,
   );
 
   const isLoading = rates.isPending || wallet.isPending;
   const isError = rates.isError || wallet.isError;
 
   // check the amount, balance and rate before submitting
-  const validAmount =
-    /^\d+([.,]\d{1,2})?$/.test(amount) && value >= 0.01 && value <= 1_000_000;
-
   const hasEnoughMoney =
     mode === 'buy' ? plnAmount <= balance : value <= balance;
 

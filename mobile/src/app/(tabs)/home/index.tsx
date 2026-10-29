@@ -8,15 +8,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { WalletBalance } from '@/components/wallet/wallet-balance';
 import { WalletCard } from '@/components/wallet/wallet-card';
 import { useWallet } from '@/hooks/queries/use-wallet';
+import { getWalletBalance } from '@/lib/wallet';
 
 export default function HomeScreen() {
   const router = useRouter();
 
   const { data: wallet, isPending, isError } = useWallet();
 
-  const plnBalance = wallet?.balances.find(
-    balance => balance.currencyCode === 'PLN',
-  );
+  const plnBalance = getWalletBalance(wallet, 'PLN');
 
   return (
     <Screen

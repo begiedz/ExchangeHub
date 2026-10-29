@@ -13,8 +13,8 @@ import { WalletBalance } from '@/components/wallet/wallet-balance';
 import { useTopUp } from '@/hooks/mutations/use-top-up';
 import { useWallet } from '@/hooks/queries/use-wallet';
 import { formatCurrency } from '@/lib/utils';
-
-const MAX_TOP_UP = 100_000;
+import { parseAmountInput } from '@/lib/money';
+import { getWalletBalance, MAX_WALLET_TRANSFER_AMOUNT } from '@/lib/wallet';
 
 function getTopUpError(error: unknown): string {
   if (!axios.isAxiosError(error)) {
@@ -58,17 +58,11 @@ export default function TransferTopUpScreen() {
   const wallet = useWallet();
   const topUp = useTopUp();
 
-  const plnBalance = wallet.data?.balances.find(
-    balance => balance.currencyCode === 'PLN',
+  const plnBalance = getWalletBalance(wallet.data, 'PLN');
+  const { value: numericAmount, isValid: validAmount } = parseAmountInput(
+    amount.trim(),
+    MAX_WALLET_TRANSFER_AMOUNT,
   );
-
-  const normalizedAmount = amount.trim().replace(',', '.');
-  const numericAmount = Number(normalizedAmount);
-
-  const validAmount =
-    /^\d+(?:[.,]\d{1,2})?$/.test(amount.trim()) &&
-    numericAmount >= 0.01 &&
-    numericAmount <= MAX_TOP_UP;
 
   const canSubmit = validAmount && !topUp.isPending;
 

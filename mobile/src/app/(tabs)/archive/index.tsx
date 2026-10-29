@@ -24,15 +24,9 @@ import { Text } from '@/components/ui/text';
 
 import { useRateHistory } from '@/hooks/queries/use-rate-history';
 import { useRates } from '@/hooks/queries/use-rates';
-import { formatDateToApi, formatDisplayDate } from '@/lib/utils';
+import { formatDateToApi, formatDisplayDate, formatRate } from '@/lib/utils';
 
 type DatePickerType = 'start' | 'end' | null;
-
-// Formatowanie daty do formatu YYYY-MM-DD wymaganego przez API
-
-function formatRate(value: number | string): string {
-  return Number(value).toFixed(4).replace('.', ',');
-}
 
 export default function ArchiveScreen() {
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);

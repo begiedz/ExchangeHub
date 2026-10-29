@@ -11,9 +11,9 @@ import { Text } from '@/components/ui/text';
 import { WalletBalance } from '@/components/wallet/wallet-balance';
 import { useWithdraw } from '@/hooks/mutations/use-withdraw';
 import { useWallet } from '@/hooks/queries/use-wallet';
+import { parseAmountInput } from '@/lib/money';
 import { formatCurrency } from '@/lib/utils';
-
-const MAX_WITHDRAWAL = 100_000;
+import { getWalletBalance, MAX_WALLET_TRANSFER_AMOUNT } from '@/lib/wallet';
 
 export default function WithdrawScreen() {
   const router = useRouter();
@@ -23,16 +23,17 @@ export default function WithdrawScreen() {
   const wallet = useWallet();
   const withdraw = useWithdraw();
 
-  const plnBalance = wallet.data?.balances.find(
-    balance => balance.currencyCode === 'PLN',
-  );
+  const plnBalance = getWalletBalance(wallet.data, 'PLN');
+
   const availableBalance = Number(plnBalance?.amount ?? 0);
-  const numericAmount = Number(amount.trim().replace(',', '.'));
-  const validAmount =
-    /^\d+(?:[.,]\d{1,2})?$/.test(amount.trim()) &&
-    numericAmount >= 0.01 &&
-    numericAmount <= MAX_WITHDRAWAL;
+
+  const { value: numericAmount, isValid: validAmount } = parseAmountInput(
+    amount.trim(),
+    MAX_WALLET_TRANSFER_AMOUNT,
+  );
+
   const insufficientFunds = validAmount && numericAmount > availableBalance;
+
   const canSubmit =
     !wallet.isPending &&
     !wallet.isError &&
@@ -46,6 +47,7 @@ export default function WithdrawScreen() {
     if (!canSubmit || confirming.current) return;
 
     confirming.current = true;
+
     const requestedAmount = numericAmount.toFixed(2);
 
     Alert.alert(

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { createWithdrawal } from '@/api/withdrawals';
+import { invalidateWalletQueries } from '@/lib/query/invalidate-wallet';
 
 export function useWithdraw() {
   const queryClient = useQueryClient();
@@ -8,11 +9,6 @@ export function useWithdraw() {
   return useMutation({
     mutationFn: createWithdrawal,
     retry: false,
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['wallet'] }),
-        queryClient.invalidateQueries({ queryKey: ['transactions'] }),
-      ]);
-    },
+    onSuccess: () => invalidateWalletQueries(queryClient),
   });
 }

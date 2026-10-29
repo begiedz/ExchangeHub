@@ -1,6 +1,7 @@
 import { View } from 'react-native';
 
 import { Text } from '@/components/ui/text';
+import { formatRate } from '@/lib/utils';
 import type { ExchangeRateDto } from '@/types/generated';
 import { Card, CardContent } from '../ui/card';
 
@@ -21,7 +22,7 @@ export function RateCard({ rate }: RateCardProps) {
         </View>
 
         <Text className="font-bold">
-          {Number(rate.bid).toFixed(4).replace('.', ',')} PLN
+          {formatRate(rate.bid)} PLN
         </Text>
       </CardContent>
     </Card>
