@@ -72,7 +72,16 @@ export default function RootLayout() {
               options={{
                 headerShown: true,
                 title: 'Account',
-                headerBackTitle: 'Home',
+                headerBackButtonDisplayMode: 'minimal',
+                headerTitleStyle: { fontWeight: 'bold' },
+              }}
+            />
+            <Stack.Screen
+              name="withdraw"
+              options={{
+                headerShown: true,
+                title: 'Withdraw PLN',
+                headerBackButtonDisplayMode: 'minimal',
                 headerTitleStyle: { fontWeight: 'bold' },
               }}
             />
@@ -81,7 +90,7 @@ export default function RootLayout() {
               options={{
                 headerShown: true,
                 title: 'Transfer Top-up',
-                headerBackTitle: 'Home',
+                headerBackButtonDisplayMode: 'minimal',
                 headerTitleStyle: { fontWeight: 'bold' },
               }}
             />

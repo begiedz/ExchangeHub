@@ -100,6 +100,10 @@ export type WalletDto = {
     balances: Array<BalanceDto>;
 };
 
+export type WithdrawRequest = {
+    amount: number | string;
+};
+
 export type GetApiUsersMeData = {
     body?: never;
     path?: never;
@@ -504,3 +508,40 @@ export type PostApiWalletTopUpResponses = {
 };
 
 export type PostApiWalletTopUpResponse = PostApiWalletTopUpResponses[keyof PostApiWalletTopUpResponses];
+
+export type PostApiWalletWithdrawData = {
+    body: WithdrawRequest;
+    path?: never;
+    query?: never;
+    url: '/api/wallet/withdraw';
+};
+
+export type PostApiWalletWithdrawErrors = {
+    /**
+     * Bad Request
+     */
+    400: ProblemDetails;
+    /**
+     * Unauthorized
+     */
+    401: ProblemDetails;
+    /**
+     * Conflict
+     */
+    409: ProblemDetails;
+    /**
+     * Unprocessable Entity
+     */
+    422: ProblemDetails;
+};
+
+export type PostApiWalletWithdrawError = PostApiWalletWithdrawErrors[keyof PostApiWalletWithdrawErrors];
+
+export type PostApiWalletWithdrawResponses = {
+    /**
+     * OK
+     */
+    200: BalanceDto;
+};
+
+export type PostApiWalletWithdrawResponse = PostApiWalletWithdrawResponses[keyof PostApiWalletWithdrawResponses];

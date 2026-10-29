@@ -41,6 +41,14 @@ function getTransactionAppearance(item: TransactionDto) {
         iconColor: 'text-emerald-600',
       };
 
+    case 'Withdrawal':
+      return {
+        title: 'Wallet Withdrawal',
+        icon: ArrowUpRight,
+        iconBackground: 'bg-orange-100',
+        iconColor: 'text-orange-600',
+      };
+
     case 'TransferSent':
       return {
         title: 'Transfer Sent',
@@ -75,7 +83,8 @@ export function TransactionCard({ item }: TransactionCardProps) {
     iconColor,
   } = getTransactionAppearance(item);
 
-  const isOutgoing = item.type === 'TransferSent';
+  const isOutgoing =
+    item.type === 'TransferSent' || item.type === 'Withdrawal';
 
   const amount = formatCurrency(item.targetAmount, item.targetCurrency);
 
