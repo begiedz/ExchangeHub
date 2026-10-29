@@ -13,7 +13,11 @@ jest.mock('@/lib/http/client', () => ({
 }));
 
 jest.mock('@/lib/storage/token-storage', () => ({
-  tokenStorage: { setTokens: jest.fn(), clearTokens: jest.fn() },
+  tokenStorage: {
+    setTokens: jest.fn(),
+    clearTokens: jest.fn(),
+    getRefreshToken: jest.fn().mockResolvedValue(null),
+  },
 }));
 
 const credentials = {
@@ -65,7 +69,9 @@ describe('login', () => {
 
 describe('refreshToken', () => {
   it('sends refresh token and stores new tokens', async () => {
-    const request = { refreshToken: 'old-refresh-token' } satisfies RefreshTokenRequest;
+    const request = {
+      refreshToken: 'old-refresh-token',
+    } satisfies RefreshTokenRequest;
     jest.mocked(httpClient.post).mockResolvedValueOnce({ data: tokens });
 
     await expect(refreshToken(request)).resolves.toEqual(tokens);

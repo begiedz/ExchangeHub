@@ -1,143 +1,258 @@
-import { Screen } from '@/components/layout/screen';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { useHslColor } from '@/hooks/use-hsl-color';
+import axios from 'axios';
+import { useRouter } from 'expo-router';
 import { ChevronDown, Info } from 'lucide-react-native';
 import { useState } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, View } from 'react-native';
 
-export default function TransferTopUpScreen() {
-  const [currentBalance, setCurrentBalance] = useState('£12,450.00');
+import { Screen } from '@/components/layout/screen';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Text } from '@/components/ui/text';
+import { WalletBalance } from '@/components/wallet/wallet-balance';
+import { useTopUp } from '@/hooks/mutations/use-top-up';
+import { useWallet } from '@/hooks/queries/use-wallet';
+import { formatCurrency } from '@/lib/utils';
 
-  const [name, setName] = useState('');
-  const [iban, setIban] = useState('');
-  const [title, setTitle] = useState('');
+const MAX_TOP_UP = 100_000;
 
-  const [amount, setAmount] = useState('1000');
-  const [selectedCurrency, setSelectedCurrency] = useState('GBP');
+function getTopUpError(error: unknown): string {
+  if (!axios.isAxiosError(error)) {
+    return 'An unexpected error occurred. Please try again.';
+  }
 
-  const foreground = useHslColor('--foreground');
+  if (!error.response) {
+    return 'Could not connect to the server. Check your internet connection.';
+  }
+
+  const data = error.response.data as
+    | {
+        code?: string;
+        detail?: string;
+        message?: string;
+        title?: string;
+      }
+    | undefined;
+
+  if (error.response.status === 401) {
+    return 'Your session has expired. Please sign in again.';
+  }
+
+  if (data?.code === 'AMOUNT_OUT_OF_RANGE' || error.response.status === 422) {
+    return 'The amount is outside the allowed range.';
+  }
 
   return (
-    <Screen scrollable>
+    data?.detail ??
+    data?.message ??
+    data?.title ??
+    'Top-up failed. Please try again.'
+  );
+}
+
+export default function TransferTopUpScreen() {
+  const router = useRouter();
+
+  const [amount, setAmount] = useState('');
+
+  const wallet = useWallet();
+  const topUp = useTopUp();
+
+  const plnBalance = wallet.data?.balances.find(
+    balance => balance.currencyCode === 'PLN',
+  );
+
+  const normalizedAmount = amount.trim().replace(',', '.');
+  const numericAmount = Number(normalizedAmount);
+
+  const validAmount =
+    /^\d+(?:[.,]\d{1,2})?$/.test(amount.trim()) &&
+    numericAmount >= 0.01 &&
+    numericAmount <= MAX_TOP_UP;
+
+  const canSubmit = validAmount && !topUp.isPending;
+
+  function confirmTopUp() {
+    if (!canSubmit) return;
+
+    const requestedAmount = numericAmount.toFixed(2);
+
+    Alert.alert(
+      'Confirm top-up',
+      `Add ${formatCurrency(requestedAmount, 'PLN')} to your wallet?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Confirm',
+          onPress: () => {
+            if (topUp.isPending) return;
+
+            topUp.mutate(
+              { amount: requestedAmount },
+              {
+                onSuccess: balance => {
+                  Alert.alert(
+                    'Top-up completed',
+                    `New PLN balance: ${formatCurrency(
+                      balance.amount,
+                      balance.currencyCode,
+                    )}`,
+                    [
+                      {
+                        text: 'OK',
+                        onPress: () => router.back(),
+                      },
+                    ],
+                  );
+
+                  setAmount('');
+                },
+                onError: error => {
+                  Alert.alert('Top-up failed', getTopUpError(error));
+                },
+              },
+            );
+          },
+        },
+      ],
+    );
+  }
+
+  return (
+    <Screen
+      scrollable
+      contentClassName="gap-4"
+    >
       {/* 1. Górny pasek: Saldo i awatar użytkownika */}
-      <View className="mb-6 flex-row items-center justify-between px-2">
-        <View>
-          <Text className="text-xs font-medium text-muted-foreground">
-            Current Balance
-          </Text>
-          <Text className="text-2xl font-bold text-foreground">
-            {currentBalance}
-          </Text>
-        </View>
+      <View className="px-2">
+        <WalletBalance
+          balance={plnBalance}
+          isPending={wallet.isPending}
+          isError={wallet.isError}
+        />
       </View>
 
       {/* 2. Główna karta formularza */}
       <Card>
         {/* Nagłówek karty */}
-        <CardHeader className="flex-row items-center justify-between">
-          <Text className="text-lg font-bold text-foreground">
+        <CardHeader>
+          <Text className="font-bold text-foreground text-lg">
             Transfer Top-up
           </Text>
-          <Pressable onPress={() => console.log('Transfer clicked')}>
-            <Text className="text-sm font-semibold text-primary">Transfer</Text>
-          </Pressable>
         </CardHeader>
-        <CardContent>
+
+        <CardContent className="gap-4">
           {/* Pole: Name */}
-          <View className="mb-4">
-            <Text className="mb-1.5 text-xs font-medium text-muted-foreground">
+          <View className="gap-1.5">
+            <Text className="font-medium text-muted-foreground text-xs">
               Name:
             </Text>
-            <TextInput
-              value={name}
-              onChangeText={setName}
-              placeholder="Name Surname"
-              placeholderTextColor="#9ca3af"
-              className="w-full rounded-2xl border border-border/60 bg-muted/40 px-4 py-3.5 text-sm text-foreground"
-              autoCapitalize="words"
+
+            <Input
+              value=""
+              placeholder="Not required for virtual top-up"
+              editable={false}
+              className="opacity-50"
             />
           </View>
 
           {/* Pole: IBAN */}
-          <View className="mb-4">
-            <Text className="mb-1.5 text-xs font-medium text-muted-foreground">
+          <View className="gap-1.5">
+            <Text className="font-medium text-muted-foreground text-xs">
               IBAN:
             </Text>
-            <TextInput
-              value={iban}
-              onChangeText={setIban}
-              placeholder="PL12 1010 0000 0000 1234 5678 9012"
-              placeholderTextColor="#9ca3af"
-              className="w-full rounded-2xl border border-border/60 bg-muted/40 px-4 py-3.5 text-sm text-foreground"
+
+            <Input
+              value=""
+              placeholder="Not required for virtual top-up"
+              editable={false}
+              className="opacity-50"
             />
           </View>
 
           {/* Pole: Transfer Title */}
-          <View className="mb-4">
-            <Text className="mb-1.5 text-xs font-medium text-muted-foreground">
+          <View className="gap-1.5">
+            <Text className="font-medium text-muted-foreground text-xs">
               Transfer Title:
             </Text>
-            <TextInput
-              value={title}
-              onChangeText={setTitle}
-              placeholder="Sample transfer title"
-              placeholderTextColor="#9ca3af"
-              className="w-full rounded-2xl border border-border/60 bg-muted/40 px-4 py-3.5 text-sm text-foreground"
+
+            <Input
+              value=""
+              placeholder="Not required for virtual top-up"
+              editable={false}
+              className="opacity-50"
             />
           </View>
 
           {/* Sekcja rozdzielona na dwa pola (Kwota + Waluta z NBP) */}
-          <View className="mb-4 flex-row gap-3">
+          <View className="flex-row gap-3">
             {/* 1. Input: You send (Kwota) - zajmuje większą część (np. flex-2) */}
-            <View className="flex-[2]">
-              <Text className="mb-1.5 text-xs font-medium text-muted-foreground">
+            <View className="flex-[2] gap-1.5">
+              <Text className="font-medium text-muted-foreground text-xs">
                 You send
               </Text>
-              <TextInput
+
+              <Input
                 value={amount}
                 onChangeText={setAmount}
-                keyboardType="numeric"
+                keyboardType="decimal-pad"
                 placeholder="0.00"
-                placeholderTextColor="#9ca3af"
-                className="w-full rounded-2xl border border-border/60 bg-muted/40 px-4 py-3.5 text-base font-bold text-foreground"
+                editable={!topUp.isPending}
+                accessibilityLabel="Top-up amount in PLN"
               />
             </View>
 
             {/* 2. Wybór waluty (Currency Dropdown / Picker) - mniejsza część (flex-1) */}
-            <View className="flex-[1]">
-              <Text className="mb-1.5 text-xs font-medium text-muted-foreground">
+            <View className="flex-[1] gap-1.5">
+              <Text className="font-medium text-muted-foreground text-xs">
                 Currency
               </Text>
-              <Pressable
-                onPress={() => {
-                  // Tutaj otwórzesz np. Modal lub listę z walutami pobranymi z API NBP
-                  console.log('Otwórz wybór walut z NBP');
-                }}
-                className="h-[52px] w-full flex-row items-center justify-between rounded-2xl border border-border/60 bg-muted/40 px-3"
-              >
-                <Text className="text-sm font-bold text-foreground">
-                  {selectedCurrency}
-                </Text>
+
+              <View className="flex-row justify-between items-center bg-muted/40 opacity-70 px-3 border border-input rounded-md h-12">
+                <Text className="font-bold text-foreground text-sm">PLN</Text>
+
                 <ChevronDown
                   size={16}
                   className="text-muted-foreground"
-                  color="currentColor"
                 />
-              </Pressable>
+              </View>
             </View>
           </View>
 
+          {/* Walidacja kwoty */}
+          {amount.length > 0 && !validAmount && (
+            <Text className="text-destructive text-sm">
+              Enter an amount between 0.01 and 100,000.00 PLN (up to 2 decimal
+              places).
+            </Text>
+          )}
+
           {/* Informacja / Baner na dole karty */}
-          <View className="mt-2 flex-row items-center rounded-2xl bg-muted/50 p-3.5">
+          <View className="flex-row items-center gap-2 bg-muted/50 p-3.5 rounded-2xl">
             <Info
               size={18}
-              className="mr-2.5 text-muted-foreground"
-              color="currentColor"
+              className="text-muted-foreground"
             />
-            <Text className="ml-2 flex-1 text-xs leading-relaxed text-muted-foreground">
-              Enjoy fee-free-top-ups when using virtual account transfers.
+
+            <Text className="flex-1 text-muted-foreground text-xs leading-relaxed">
+              This is a simulated PLN wallet top-up. No bank transfer is
+              performed.
             </Text>
           </View>
+
+          {/* Przycisk potwierdzenia zasilenia */}
+          <Button
+            className="mt-2"
+            disabled={!canSubmit}
+            onPress={confirmTopUp}
+          >
+            {topUp.isPending && <ActivityIndicator size="small" />}
+
+            <Text>{topUp.isPending ? 'Processing...' : 'Top up wallet'}</Text>
+          </Button>
         </CardContent>
       </Card>
     </Screen>
