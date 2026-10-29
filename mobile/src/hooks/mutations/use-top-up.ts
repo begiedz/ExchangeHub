@@ -1,4 +1,5 @@
 import { createDeposit } from '@/api/deposits';
+import { invalidateWalletQueries } from '@/lib/query/invalidate-wallet';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export function useTopUp() {
@@ -7,11 +8,6 @@ export function useTopUp() {
   return useMutation({
     mutationFn: createDeposit,
 
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['wallet'] }),
-        queryClient.invalidateQueries({ queryKey: ['transactions'] }),
-      ]);
-    },
+    onSuccess: () => invalidateWalletQueries(queryClient),
   });
 }

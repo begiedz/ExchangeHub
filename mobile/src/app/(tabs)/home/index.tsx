@@ -8,16 +8,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { WalletBalance } from '@/components/wallet/wallet-balance';
 import { WalletCard } from '@/components/wallet/wallet-card';
 import { useWallet } from '@/hooks/queries/use-wallet';
-import { logger } from '@/lib/logger';
+import { getWalletBalance } from '@/lib/wallet';
 
 export default function HomeScreen() {
   const router = useRouter();
 
   const { data: wallet, isPending, isError } = useWallet();
 
-  const plnBalance = wallet?.balances.find(
-    balance => balance.currencyCode === 'PLN',
-  );
+  const plnBalance = getWalletBalance(wallet, 'PLN');
 
   return (
     <Screen
@@ -37,10 +35,12 @@ export default function HomeScreen() {
       <View className="flex-row gap-3">
         {/* Send Money  */}
         <Pressable
-          onPress={() => logger.info('Not implemented')}
-          className="active:opacity-60"
+          onPress={() => router.push('/withdraw')}
+          accessibilityRole="button"
+          accessibilityLabel="Withdraw PLN from your wallet"
+          className="flex-1 active:opacity-60"
         >
-          <Card className="flex-1">
+          <Card>
             <CardContent>
               <View className="justify-center items-center bg-emerald-100 mb-3 rounded-full w-10 h-10">
                 <ArrowUpRight
@@ -64,7 +64,7 @@ export default function HomeScreen() {
           onPress={() => router.push('/transfer-top-up')}
           className="flex-1 active:opacity-60"
         >
-          <Card className="flex-1">
+          <Card>
             <CardContent>
               <View className="justify-center items-center bg-blue-100 mb-3 rounded-full w-10 h-10">
                 <ArrowDownLeft

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { buyCurrency, sellCurrency } from '@/api/exchange';
+import { invalidateWalletQueries } from '@/lib/query/invalidate-wallet';
 
 export type ExchangeMode = 'buy' | 'sell';
 
@@ -20,12 +21,6 @@ export function useExchange() {
       return mode === 'buy' ? buyCurrency(body) : sellCurrency(body);
     },
 
-    onSuccess: async () => {
-      // exchange changes wallet balances and transaction history
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['wallet'] }),
-        queryClient.invalidateQueries({ queryKey: ['transactions'] }),
-      ]);
-    },
+    onSuccess: () => invalidateWalletQueries(queryClient),
   });
 }
