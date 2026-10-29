@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 
 export default function Account() {
-  const { mutate: logout, isPending, isError, error } = useLogout();
+  const { mutate: logout, isPending } = useLogout();
 
   return (
     <Screen>
@@ -15,7 +15,6 @@ export default function Account() {
         disabled={isPending}
       >
         <Text>{isPending ? 'Logging out...' : 'Log out'}</Text>
-        {isError && <Text className="text-destructive">{error.message}</Text>}
       </Button>
     </Screen>
   );
