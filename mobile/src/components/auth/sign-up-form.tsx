@@ -1,37 +1,44 @@
-import { login, register } from '@/api/auth';
+import { useLogin } from '@/hooks/mutations/use-login';
+import { useRegister } from '@/hooks/mutations/use-register';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
-import { logger } from '@/lib/logger';
 import { focusInput } from '@/lib/utils';
-import { useAuthStore } from '@/stores/auth-store';
+
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import { Pressable, type TextInput, View } from 'react-native';
 
 export function SignUpForm() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
+  const registerMutation = useRegister();
+  const loginMutation = useLogin();
+
+  const router = useRouter();
   const passwordRef = useRef<TextInput>(null);
   const confirmPasswordRef = useRef<TextInput>(null);
 
-  const signIn = useAuthStore(state => state.signIn);
+  const isPending = registerMutation.isPending || loginMutation.isPending;
 
   async function onSubmit() {
-    if (isSubmitting) return;
+    if (isPending) return;
 
     setError(null);
 
-    const trimmedEmail = email.trim();
+    const credentials = {
+      email: email.trim(),
+      password,
+    };
 
-    if (!trimmedEmail || !password || !confirmPassword) {
+    if (!credentials.email || !password || !confirmPassword) {
       setError('All fields are required.');
       return;
     }
@@ -41,31 +48,21 @@ export function SignUpForm() {
       return;
     }
 
-    setIsSubmitting(true);
-
     try {
-      const credentials = { email: trimmedEmail, password };
-      await register(credentials);
-      await login(credentials);
-
-      signIn();
-      router.replace('/(tabs)/home');
+      await registerMutation.mutateAsync(credentials);
+      await loginMutation.mutateAsync(credentials);
     } catch (error: unknown) {
       if (axios.isAxiosError<{ detail: string }>(error)) {
         setError(error.response?.data?.detail ?? 'Something went wrong.');
-        logger.error(error);
       } else {
         setError('An unexpected error occurred.');
       }
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
-  const router = useRouter();
   return (
     <View className="gap-6">
-      <Card className="border-border/0 shadow-none sm:border-border sm:shadow-sm sm:shadow-black/5">
+      <Card className="shadow-none sm:shadow-black/5 border-border/0 sm:border-border">
         <CardContent className="gap-6">
           <View className="gap-6">
             <View className="gap-1.5">
@@ -78,69 +75,66 @@ export function SignUpForm() {
                 autoComplete="email"
                 autoCapitalize="none"
                 onSubmitEditing={() => focusInput(passwordRef)}
-                onChangeText={text => setEmail(text)}
+                onChangeText={setEmail}
                 returnKeyType="next"
                 submitBehavior="submit"
               />
             </View>
+
             <View className="gap-1.5">
-              <View className="flex-row items-center">
-                <Label htmlFor="password">Password</Label>
-              </View>
+              <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
-                value={password}
                 ref={passwordRef}
+                value={password}
                 placeholder="Enter your password"
                 secureTextEntry
                 returnKeyType="next"
                 onSubmitEditing={() => focusInput(confirmPasswordRef)}
-                onChangeText={text => setPassword(text)}
+                onChangeText={setPassword}
                 className="focus:border-primary"
               />
-              <Text className="text-xs text-foreground/30">
+              <Text className="text-foreground/30 text-xs">
                 8-128 characters, at least one letter and one number.
               </Text>
             </View>
+
             <View className="gap-1.5">
-              <View className="flex-row items-center">
-                <Label htmlFor="confirmPassword">Confirm password</Label>
-              </View>
+              <Label htmlFor="confirmPassword">Confirm password</Label>
               <Input
-                id="confimPassword"
-                value={confirmPassword}
+                id="confirmPassword"
                 ref={confirmPasswordRef}
+                value={confirmPassword}
                 placeholder="Confirm your password"
                 secureTextEntry
                 returnKeyType="send"
                 onSubmitEditing={onSubmit}
-                onChangeText={text => setConfirmPassword(text)}
+                onChangeText={setConfirmPassword}
                 className="focus:border-primary"
               />
             </View>
+
             <Button
-              className="w-full bg-primary"
+              className="bg-primary w-full"
               onPress={onSubmit}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               <Text>
-                {isSubmitting ? 'Creating account...' : 'Create Account'}
+                {isPending ? 'Creating account...' : 'Create Account'}
               </Text>
             </Button>
+
             {error && (
-              <View className="flex items-center">
+              <View className="items-center">
                 <Text className="text-destructive">{error}</Text>
               </View>
             )}
           </View>
-          <View className="flex flex-row justify-center">
+
+          <View className="flex-row justify-center">
             <Text className="text-sm">Already have an account? </Text>
-            <Pressable
-              onPress={() => {
-                router.replace('/login');
-              }}
-            >
-              <Text className="text-sm text-primary underline underline-offset-4">
+            <Pressable onPress={() => router.replace('/login')}>
+              <Text className="text-primary text-sm underline underline-offset-4">
                 Sign in
               </Text>
             </Pressable>
