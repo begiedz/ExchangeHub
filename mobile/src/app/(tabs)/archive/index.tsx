@@ -1,115 +1,163 @@
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Calendar } from 'lucide-react-native';
+import { useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  Modal,
+  Platform,
+  Pressable,
+  View,
+} from 'react-native';
+
 import { Screen } from '@/components/layout/screen';
 import { SearchInput } from '@/components/search-input';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Text } from '@/components/ui/text';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Calendar, ChevronDown } from 'lucide-react-native';
-import { useEffect, useMemo, useState } from 'react';
-import { Platform, Pressable, View } from 'react-native';
 
-interface HistoricalRate {
-  no: string;
-  effectiveDate: string;
-  mid: number;
+import { useRateHistory } from '@/hooks/queries/use-rate-history';
+import { useRates } from '@/hooks/queries/use-rates';
+import { formatDateToApi, formatDisplayDate } from '@/lib/utils';
+
+type DatePickerType = 'start' | 'end' | null;
+
+// Formatowanie daty do formatu YYYY-MM-DD wymaganego przez API
+
+function formatRate(value: number | string): string {
+  return Number(value).toFixed(4).replace('.', ',');
 }
-
-interface NbpHistoryResponse {
-  table: string;
-  currency: string;
-  code: string;
-  rates: HistoricalRate[];
-}
-
-// Przykładowa lista popularnych walut do wyboru
-const AVAILABLE_CURRENCIES = [
-  { code: 'USD', name: 'US Dollar' },
-  { code: 'EUR', name: 'Euro' },
-  { code: 'GBP', name: 'British Pound' },
-  { code: 'CHF', name: 'Swiss Franc' },
-  { code: 'AUD', name: 'Australian Dollar' },
-];
 
 export default function ArchiveScreen() {
-  const [selectedCurrency, setSelectedCurrency] = useState('USD');
-  const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
-
-  // Domyślny zakres dat (np. ostatni miesiąc)
-  const [startDate, setStartDate] = useState(
-    () => new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-  );
-  const [endDate, setEndDate] = useState(() => new Date());
-
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
-
-  const [historyData, setHistoryData] = useState<NbpHistoryResponse | null>(
-    null,
-  );
+  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Formatowanie daty do formatu YYYY-MM-DD wymaganego przez API NBP
-  const formatDateToApi = (date: Date) => {
-    return date.toISOString().split('T')[0];
+  // Domyślny zakres dat (np. ostatni miesiąc)
+  const [startDate, setStartDate] = useState(() => {
+    const date = new Date();
+    date.setDate(date.getDate() - 30);
+    return date;
+  });
+
+  const [endDate, setEndDate] = useState(() => new Date());
+
+  const [activeDatePicker, setActiveDatePicker] =
+    useState<DatePickerType>(null);
+
+  const from = formatDateToApi(startDate);
+  const to = formatDateToApi(endDate);
+
+  const isValidRange = from <= to && to <= formatDateToApi(new Date());
+
+  // Pobieranie dostępnych walut z backendu
+  const {
+    data: currentRates,
+    isPending: isRatesPending,
+    isError: isRatesError,
+    refetch: refetchRates,
+  } = useRates();
+
+  const currencies = currentRates?.rates ?? [];
+
+  // Wybór waluty z listy zwróconej przez backend
+  const selectedRate =
+    currencies.find(item => item.code === selectedCurrency) ??
+    currencies.find(item => item.code === 'USD') ??
+    currencies[0];
+
+  const currencyCode = selectedRate?.code ?? '';
+
+  // Pobieranie danych historycznych z backendu (Endpoint: /rates/{code}/history?from&to)
+  const {
+    data: historyData,
+    isPending,
+    isFetching,
+    isError,
+    refetch,
+  } = useRateHistory(
+    currencyCode,
+    isValidRange ? from : '',
+    isValidRange ? to : '',
+  );
+
+  const rates = historyData?.rates ?? [];
+
+  // Filtrowanie wpisów w historii
+  const filteredRates = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+
+    return [...rates]
+      .reverse() // najnowsze na górze
+      .filter(
+        item =>
+          item.date.includes(query) ||
+          String(item.bid).includes(query) ||
+          String(item.ask).includes(query),
+      );
+  }, [rates, searchQuery]);
+
+  // Obliczenie zmiany procentowej (między pierwszym a ostatnim kursem w tabeli)
+  const percentageChange = useMemo(() => {
+    if (rates.length < 2) return null;
+
+    const first = Number(rates[0].bid);
+    const last = Number(rates[rates.length - 1].bid);
+
+    if (!Number.isFinite(first) || first <= 0) {
+      return null;
+    }
+
+    const change = ((last - first) / first) * 100;
+
+    return `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+  }, [rates]);
+
+  const latestRate = rates.at(-1);
+
+  const chartRates = rates.slice(-8);
+  const chartValues = chartRates.map(rate => Number(rate.bid));
+
+  const minRate = chartValues.length ? Math.min(...chartValues) : 0;
+
+  const maxRate = chartValues.length ? Math.max(...chartValues) : 0;
+
+  const chartRange = maxRate - minRate;
+
+  const isStartPicker = activeDatePicker === 'start';
+  const isEndPicker = activeDatePicker === 'end';
+  const isPickerOpen = activeDatePicker !== null;
+
+  const closeDatePicker = () => {
+    setActiveDatePicker(null);
   };
 
-  // Pobieranie danych historycznych z NBP API (Endpoint: /exchangerates/rates/{table}/{code}/{startDate}/{endDate}/)
-  useEffect(() => {
-    async function fetchHistoricalRates() {
-      try {
-        const startStr = formatDateToApi(startDate);
-        const endStr = formatDateToApi(endDate);
-
-        const response = await fetch(
-          `https://api.nbp.pl/api/exchangerates/rates/a/${selectedCurrency}/${startStr}/${endStr}/?format=json`,
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setHistoryData(data);
-        } else {
-          setHistoryData(null);
-        }
-      } catch (error) {
-        console.error('Błąd pobierania danych archiwum NBP:', error);
-      }
-    }
-    fetchHistoricalRates();
-  }, [selectedCurrency, startDate, endDate]);
-
   // Obsługa zmiany daty początkowej
-  const onStartDateChange = (event: any, selectedDate?: Date) => {
-    setShowStartPicker(Platform.OS === 'ios');
+  const onStartDateChange = (selectedDate?: Date) => {
     if (selectedDate) {
       setStartDate(selectedDate);
     }
   };
 
   // Obsługa zmiany daty końcowej
-  const onEndDateChange = (event: any, selectedDate?: Date) => {
-    setShowEndPicker(Platform.OS === 'ios');
+  const onEndDateChange = (selectedDate?: Date) => {
     if (selectedDate) {
       setEndDate(selectedDate);
     }
   };
 
-  // Filtrowanie wpisów w historii
-  const filteredRates = useMemo(() => {
-    if (!historyData?.rates) return [];
-    return [...historyData.rates]
-      .reverse() // najnowsze na górze
-      .filter(
-        item =>
-          item.effectiveDate.includes(searchQuery) ||
-          item.mid.toString().includes(searchQuery),
-      );
-  }, [historyData, searchQuery]);
-
-  // Obliczenie zmiany procentowej (między pierwszym a ostatnim kursem w tabeli)
-  const percentageChange = useMemo(() => {
-    if (!historyData?.rates || historyData.rates.length < 2) return '+0.00%';
-    const first = historyData.rates[0].mid;
-    const last = historyData.rates[historyData.rates.length - 1].mid;
-    const diff = ((last - first) / first) * 100;
-    return `${diff >= 0 ? '+' : ''}${diff.toFixed(2)}%`;
-  }, [historyData]);
+  const handleDateChange = (date?: Date) => {
+    if (isStartPicker) {
+      onStartDateChange(date);
+    } else if (isEndPicker) {
+      onEndDateChange(date);
+    }
+  };
 
   return (
     <Screen
@@ -118,7 +166,7 @@ export default function ArchiveScreen() {
     >
       {/* 1. Nagłówek ekranu */}
 
-      <Text className="text-xs text-muted-foreground">
+      <Text className="text-muted-foreground text-xs">
         Historical exchange data
       </Text>
 
@@ -133,177 +181,306 @@ export default function ArchiveScreen() {
       <View className="flex-row gap-3">
         {/* Start Date Picker Button */}
         <Pressable
-          onPress={() => setShowStartPicker(true)}
-          className="flex-1 rounded-3xl border border-border bg-card p-4 shadow-sm"
+          onPress={() => setActiveDatePicker('start')}
+          className="flex-1 bg-card shadow-sm p-4 border border-border rounded-3xl"
         >
-          <View className="mb-1 flex-row items-center justify-between">
-            <Text className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          <View className="flex-row justify-between items-center mb-1">
+            <Text className="font-bold text-[10px] text-muted-foreground uppercase tracking-wider">
               Start Date
             </Text>
+
             <Calendar
               size={14}
               className="text-muted-foreground"
             />
           </View>
-          <Text className="text-sm font-bold text-foreground">
-            {startDate.toLocaleDateString('en-US', {
-              month: 'short',
-              day: '2-digit',
-              year: 'numeric',
-            })}
+
+          <Text className="font-bold text-foreground text-sm">
+            {formatDisplayDate(startDate)}
           </Text>
         </Pressable>
 
         {/* End Date Picker Button */}
         <Pressable
-          onPress={() => setShowEndPicker(true)}
-          className="flex-1 rounded-3xl border border-border bg-card p-4 shadow-sm"
+          onPress={() => setActiveDatePicker('end')}
+          className="flex-1 bg-card shadow-sm p-4 border border-border rounded-3xl"
         >
-          <View className="mb-1 flex-row items-center justify-between">
-            <Text className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          <View className="flex-row justify-between items-center mb-1">
+            <Text className="font-bold text-[10px] text-muted-foreground uppercase tracking-wider">
               End Date
             </Text>
+
             <Calendar
               size={14}
               className="text-muted-foreground"
             />
           </View>
-          <Text className="text-sm font-bold text-foreground">
-            {endDate.toLocaleDateString('en-US', {
-              month: 'short',
-              day: '2-digit',
-              year: 'numeric',
-            })}
+
+          <Text className="font-bold text-foreground text-sm">
+            {formatDisplayDate(endDate)}
           </Text>
         </Pressable>
       </View>
 
       {/* Komponenty okna wyboru daty */}
-      {showStartPicker && (
-        <DateTimePicker
-          value={startDate}
-          mode="date"
-          display="default"
-          onValueChange={(event, date) => {
-            // Sprawdzamy czy użytkownik faktycznie wybrał datę (i czy to obiekt Date)
-            if (date) setStartDate(date);
-            if (Platform.OS === 'android') setShowStartPicker(false);
-          }}
-          onDismiss={() => setShowStartPicker(false)}
-          maximumDate={endDate}
-        />
+
+      {/* iOS: modal z kalendarzem inline */}
+      {Platform.OS === 'ios' && (
+        <Modal
+          visible={isPickerOpen}
+          transparent
+          animationType="fade"
+          statusBarTranslucent
+          onRequestClose={closeDatePicker}
+        >
+          <View className="flex-1 justify-center bg-black/50 px-5">
+            <View className="bg-card p-5 rounded-3xl">
+              <View className="flex-row justify-between items-center mb-4">
+                <Text className="font-bold text-foreground text-lg">
+                  {isStartPicker ? 'Start Date' : 'End Date'}
+                </Text>
+
+                <Pressable onPress={closeDatePicker}>
+                  <Text className="font-semibold text-primary text-sm">
+                    Done
+                  </Text>
+                </Pressable>
+              </View>
+
+              {isPickerOpen && (
+                <DateTimePicker
+                  value={isStartPicker ? startDate : endDate}
+                  mode="date"
+                  display="inline"
+                  minimumDate={isEndPicker ? startDate : undefined}
+                  maximumDate={isStartPicker ? endDate : new Date()}
+                  onValueChange={(_, date) => {
+                    handleDateChange(date);
+                  }}
+                  style={{
+                    alignSelf: 'center',
+                    width: '100%',
+                  }}
+                />
+              )}
+            </View>
+          </View>
+        </Modal>
       )}
 
-      {showEndPicker && (
+      {/* Android: natywny dialog wyboru daty */}
+      {Platform.OS === 'android' && isPickerOpen && (
         <DateTimePicker
-          value={endDate}
+          value={isStartPicker ? startDate : endDate}
           mode="date"
           display="default"
-          onValueChange={(event, date) => {
-            if (date) setEndDate(date);
-            if (Platform.OS === 'android') setShowEndPicker(false);
+          minimumDate={isEndPicker ? startDate : undefined}
+          maximumDate={isStartPicker ? endDate : new Date()}
+          onValueChange={(_, date) => {
+            handleDateChange(date);
+            closeDatePicker();
           }}
-          onDismiss={() => setShowEndPicker(false)}
-          minimumDate={startDate}
-          maximumDate={new Date()}
+          onDismiss={closeDatePicker}
         />
       )}
 
       {/* 4. Główna karta wykresu i wyboru waluty */}
-      <View className="rounded-3xl border border-border bg-card p-5 shadow-lg">
+      <View className="bg-card shadow-lg p-5 border border-border rounded-3xl">
         {/* Nagłówek karty z wyborem waluty */}
-        <View className="mb-3 flex-row items-center justify-between">
-          <View>
-            <Pressable
-              onPress={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
-              className="flex-row items-center gap-1 self-start rounded-xl border border-border/60 bg-muted/40 px-3 py-1.5"
+        <View className="flex-row justify-between items-center gap-3 mb-3">
+          <Select
+            value={
+              selectedRate
+                ? {
+                    value: selectedRate.code,
+                    label: `${selectedRate.code}/PLN`,
+                  }
+                : undefined
+            }
+            onValueChange={option => {
+              if (option) {
+                setSelectedCurrency(option.value);
+              }
+            }}
+            disabled={isRatesPending || isRatesError || currencies.length === 0}
+          >
+            <SelectTrigger className="rounded-xl min-w-32">
+              <SelectValue placeholder="Currency" />
+            </SelectTrigger>
+
+            <SelectContent
+              insets={{ right: 20 }}
+              className="mt-2 rounded-3xl max-h-80"
             >
-              <Text className="text-xs font-bold text-foreground">
-                {selectedCurrency}/PLN
+              <SelectGroup>
+                <SelectLabel>Available currencies</SelectLabel>
+
+                {currencies.map(currency => (
+                  <SelectItem
+                    key={currency.code}
+                    value={currency.code}
+                    label={`${currency.code} - ${currency.currency}`}
+                  >
+                    {currency.code} - {currency.currency}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+
+          {percentageChange && !isError && (
+            <View className="bg-muted px-2.5 py-1 rounded-full">
+              <Text className="font-bold text-foreground text-xs">
+                {percentageChange}
               </Text>
-              <ChevronDown
-                size={14}
-                className="text-muted-foreground"
-              />
-            </Pressable>
-          </View>
-          <View className="rounded-full bg-emerald-100 px-2.5 py-1">
-            <Text className="text-xs font-bold text-emerald-700">
-              {percentageChange}
-            </Text>
-          </View>
+            </View>
+          )}
         </View>
 
-        {/* Lista rozwijana walut */}
-        {showCurrencyDropdown && (
-          <View className="rounded-2xl border border-border bg-muted/90 p-2">
-            {AVAILABLE_CURRENCIES.map(cur => (
-              <Pressable
-                key={cur.code}
-                onPress={() => {
-                  setSelectedCurrency(cur.code);
-                  setShowCurrencyDropdown(false);
-                }}
-                className={`flex-row items-center justify-between rounded-xl p-2.5 ${selectedCurrency === cur.code ? 'bg-primary/20' : ''}`}
-              >
-                <Text className="text-xs font-semibold text-foreground">
-                  {cur.code} - {cur.name}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
+        {/* Obsługa błędów pobierania listy walut */}
+        {isRatesError && (
+          <Pressable
+            onPress={() => void refetchRates()}
+            className="mb-3"
+          >
+            <Text className="text-destructive text-sm">
+              Failed to load currencies. Tap to retry.
+            </Text>
+          </Pressable>
         )}
 
-        <Text className="text-2xl font-bold text-foreground">
-          {historyData && historyData.rates.length > 0
-            ? historyData.rates[historyData.rates.length - 1].mid
-                .toFixed(4)
-                .replace('.', ',')
-            : 'Loading...'}
-        </Text>
+        {/* Obsługa ładowania, błędów i pustych wyników */}
+        {!isValidRange ? (
+          <Text className="text-destructive text-sm">Invalid date range.</Text>
+        ) : isRatesPending || (isPending && currencyCode) ? (
+          <ActivityIndicator />
+        ) : isRatesError ? null : isError ? (
+          <View className="gap-3">
+            <Text className="text-destructive text-sm">
+              Could not load historical rates.
+            </Text>
 
-        {/* Paski wykresu wizualnego */}
-        <View className="h-20 flex-row items-end justify-between gap-1.5 pt-2">
-          {historyData?.rates.slice(-8).map((item, index, arr) => {
-            const isHighest = index === arr.length - 1;
-            return (
-              <View
-                key={item.no}
-                style={{ height: `${Math.max(20, (item.mid / 5) * 100)}%` }}
-                className={`flex-1 rounded-t-lg ${isHighest ? 'bg-primary' : 'bg-muted'}`}
-              />
-            );
-          })}
-        </View>
+            <Pressable onPress={() => void refetch()}>
+              <Text className="font-semibold text-primary">Try again</Text>
+            </Pressable>
+          </View>
+        ) : !latestRate ? (
+          <Text className="text-muted-foreground text-sm">
+            No exchange rates available for this period.
+          </Text>
+        ) : (
+          <>
+            {/* Aktualne wartości z ostatniego dostępnego notowania */}
+            <View className="gap-2">
+              <View>
+                <Text className="text-muted-foreground text-xs">
+                  Buy rate (bid)
+                </Text>
+
+                <Text className="font-bold text-foreground text-2xl">
+                  {formatRate(latestRate.bid)} PLN
+                </Text>
+              </View>
+
+              <View>
+                <Text className="text-muted-foreground text-xs">
+                  Sell rate (ask)
+                </Text>
+
+                <Text className="font-semibold text-foreground text-lg">
+                  {formatRate(latestRate.ask)} PLN
+                </Text>
+              </View>
+            </View>
+
+            <Text className="mt-2 text-muted-foreground text-xs">
+              Latest published rate: {latestRate.date}
+            </Text>
+
+            {/* Paski wykresu wizualnego */}
+            <View className="flex-row justify-between items-end gap-1.5 pt-2 h-20">
+              {chartRates.map((item, index) => {
+                const value = Number(item.bid);
+
+                const height =
+                  chartRange === 0
+                    ? 60
+                    : 20 + ((value - minRate) / chartRange) * 80;
+
+                return (
+                  <View
+                    key={item.date}
+                    style={{ height: `${height}%` }}
+                    className={`flex-1 rounded-t-lg ${
+                      index === chartRates.length - 1
+                        ? 'bg-primary'
+                        : 'bg-muted'
+                    }`}
+                  />
+                );
+              })}
+            </View>
+          </>
+        )}
+
+        {isFetching && !isPending && (
+          <Text className="mt-2 text-muted-foreground text-xs">
+            Refreshing rates...
+          </Text>
+        )}
       </View>
 
       {/* 5. Sekcja: Recent Entries (Lista historyczna) */}
       <View>
-        <Text className="mb-3 px-1 text-lg font-bold">Recent Entries</Text>
+        <Text className="mb-3 px-1 font-bold text-lg">Recent Entries</Text>
+
+        {!isRatesPending &&
+          !isPending &&
+          !isError &&
+          !isRatesError &&
+          filteredRates.length === 0 && (
+            <Text className="px-1 text-muted-foreground text-sm">
+              No matching historical rates.
+            </Text>
+          )}
 
         <View className="gap-2.5">
-          {filteredRates.map(item => (
-            <View
-              key={item.no}
-              className="flex-row items-center justify-between rounded-3xl border border-border bg-card p-4 shadow-sm"
-            >
-              <View>
-                <Text className="text-sm font-bold">
-                  {new Date(item.effectiveDate).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: '2-digit',
-                    year: 'numeric',
-                  })}
-                </Text>
-                <Text className="mt-0.5 text-xs text-muted-foreground">
-                  {selectedCurrency}/PLN
-                </Text>
+          {!isError &&
+            !isRatesError &&
+            filteredRates.map(item => (
+              <View
+                key={item.date}
+                className="bg-card shadow-sm p-4 border border-border rounded-3xl"
+              >
+                <View>
+                  <Text className="font-bold text-sm">
+                    {formatDisplayDate(item.date)}
+                  </Text>
+
+                  <Text className="mt-0.5 text-muted-foreground text-xs">
+                    {currencyCode}/PLN
+                  </Text>
+                </View>
+
+                <View className="flex-row justify-between mt-2">
+                  <View>
+                    <Text className="text-muted-foreground text-xs">Bid</Text>
+
+                    <Text className="font-bold text-foreground text-base">
+                      {formatRate(item.bid)}
+                    </Text>
+                  </View>
+
+                  <View>
+                    <Text className="text-muted-foreground text-xs">Ask</Text>
+
+                    <Text className="font-bold text-foreground text-base">
+                      {formatRate(item.ask)}
+                    </Text>
+                  </View>
+                </View>
               </View>
-              <Text className="text-base font-bold text-foreground">
-                {item.mid.toFixed(4).replace('.', ',')}
-              </Text>
-            </View>
-          ))}
+            ))}
         </View>
       </View>
     </Screen>
