@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 
 import { login } from '@/api/auth';
+import { logger } from '@/lib/logger';
 import { useAuthStore } from '@/stores/auth-store';
 
 export function useLogin() {
@@ -8,6 +9,9 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: login,
-    onSuccess: () => signIn(),
+    onSuccess: () => {
+      signIn();
+      logger.info('[AUTH] User signed in');
+    },
   });
 }

@@ -31,6 +31,8 @@ createAuthRefresh(
 
       failedRequest.response.config.headers.Authorization = `Bearer ${data.accessToken}`;
     } catch (error) {
+      logger.warn('[AUTH] Token refresh failed');
+
       await tokenStorage.clearTokens();
       throw error;
     }

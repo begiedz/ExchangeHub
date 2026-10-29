@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { logout } from '@/api/auth';
+import { logger } from '@/lib/logger';
 import { useAuthStore } from '@/stores/auth-store';
 
 export function useLogout() {
@@ -13,6 +14,8 @@ export function useLogout() {
       await queryClient.cancelQueries();
       queryClient.clear();
       signOut();
+
+      logger.info('[AUTH] User signed out');
     },
   });
 }
