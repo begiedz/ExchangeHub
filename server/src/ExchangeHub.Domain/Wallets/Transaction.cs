@@ -4,7 +4,8 @@ public enum TransactionType
 {
     TopUp,
     Purchase,
-    Sale
+    Sale,
+    Withdrawal
 }
 
 /// <summary>
@@ -38,6 +39,22 @@ public sealed class Transaction
         Id = Guid.NewGuid(),
         UserId = userId,
         Type = TransactionType.TopUp,
+        TargetCurrency = Balance.BaseCurrency,
+        TargetAmount = amount,
+        CreatedAtUtc = nowUtc
+    };
+
+    /// <summary>
+    /// Funds leave the wallet for good (simulated). There is no conversion, so source and target are both the
+    /// withdrawn PLN amount and no exchange rate is stored.
+    /// </summary>
+    public static Transaction Withdrawal(Guid userId, decimal amount, DateTime nowUtc) => new()
+    {
+        Id = Guid.NewGuid(),
+        UserId = userId,
+        Type = TransactionType.Withdrawal,
+        SourceCurrency = Balance.BaseCurrency,
+        SourceAmount = amount,
         TargetCurrency = Balance.BaseCurrency,
         TargetAmount = amount,
         CreatedAtUtc = nowUtc
